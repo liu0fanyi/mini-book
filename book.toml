@@ -1,0 +1,22 @@
+# Documentation
+# * mdbook   https://rust-lang.github.io/mdBook/
+# * template https://github.com/kg4zow/mdbook-template/
+
+[book]
+authors = ["liu"]
+language = "cn"
+multilingual = false
+src = "src"
+title = "All"
+
+[output.html]
+additional-css = ["section-lines.css", "version-commit.css"]
+curly-quotes = false
+git-repository-url = "https://github.com/liu0fanyi/my-book.git"
+no-section-label = true
+default-theme = "rust"
+preferred-dark-theme = "ayu"
+
+[preprocessor.version-commit]
+renderers = ["html"]
+command = "./version-commit"
