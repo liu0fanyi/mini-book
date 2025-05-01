@@ -3,3 +3,9 @@
 /book/
 /theme/*.hbs
 /debug.txt
+/target
+/db
+/.direnv
+/result
+result
+git-crypt-key
