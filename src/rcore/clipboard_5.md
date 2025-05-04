@@ -1,0 +1,2091 @@
+<html>
+<head>
+<style>
+table {
+border-collapse: collapse;
+margin-left: 0;          /* 强制左对齐 */
+width: auto;             /* 宽度自适应内容 */
+}
+table, th, td {
+border: 1px solid black;
+text-align: left;        /* 文本左对齐 */
+padding: 4px 8px;       /* 添加内边距 */
+}
+</style>
+</head>
+<body>
+<table style="border-width: 2pt; font-size: 14pt;">
+<tr>
+<td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+  <table style="border-width: 2pt; font-size: 13pt;">
+  <tr>
+  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+    <table style="border-width: 2pt; font-size: 12pt;">
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进程管理
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">branch ch5
+    </td>
+    </tr>
+    </table>
+  </td>
+  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+    <table style="border-width: 2pt; font-size: 12pt;">
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">关键系统调用
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_fork() -> isize;
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">由当前进程 fork 出一个子进程。
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_exec(path: &str) -> isize;
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将当前进程的地址空间清空并加载一个特定的可执行文件，返回用户态后开始它的执行。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">字符串 path 给出了要加载的可执行文件的名字；
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fork 和 exec 的组合，我们能让创建一个子进程
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">令其执行特定的可执行文件
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_waitpid(pid: isize, exit_code: *mut i32) -> isize;
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当前进程等待一个子进程变为僵尸进程，回收其全部资源并收集其返回值。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pid 表示要等待的子进程的进程 ID，如果为 -1 的话表示等待任意一个子进程
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">封装成俩API
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">wait(exit_code: &mut i32)
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4    loop {
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5        match sys_waitpid(-1, exit_code as *mut _) {
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">6            -2 => { sys_yield(); }
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">7            n => { return n; }
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">8        }
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">9    }
+            </td>
+            </tr>
+            </table>
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">等待任意子进程
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果子进程没结束
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">yield让出时间片
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">waitpid(pid: usize, exit_code: &mut i32)
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">等待特定子进程
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">应用示例
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">用户初始程序-init
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">内核初始化完成第一个process，initial Process
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">通过ford+exec创建user_shell子进程
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">也用于回收僵尸进程
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fork()出子进程，子进程也进入同样的main()函数，==0的时候进入的是子进程分支，
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">exec执行user_shell
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">else是父进程main进loop
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在这里循环等待并回收所有的僵尸进程
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">成功打印
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">-1就yield继续循环
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">shell程序-user_shell 
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">捕获用户输入并进行解析处理
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">添加一个能获取用户输入的系统调用
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_read(fd: usize, buffer: &mut [u8]) -> isize;
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">syscall(SYSCALL_READ, [fd, buffer.as_mut_ptr() as usize, buffer.len()])
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件中读取一段内容到缓冲区。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fd 是待读取文件的file descriptor，切片 buffer 是缓冲区。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果出现了错误则返回 -1，否则返回实际读到的字节数。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">实际调用时，我们必须要同时向内核提供缓冲区的起始地址及长度：
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">用户库中将其进一步封装成每次能够从 标准输入 中获取一个字符的 getchar 函数。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">loop
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">调用getchar获取一个user字符
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果回车键
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fork一个子进程，line是名字
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">试图exec调用执行一个应用
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">exec返回-1找不到应用，打印错误退出
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">user_shell自己会wait_pid并回收资源
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">顺带收集子进程退出状态并打印出来
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              </table>
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">退格键
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将屏幕上当前行的最后一个字符用空格替换掉
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这可以通过输入一个特殊的退格字节 BS 来实现
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">user_shell 进程内维护的 line 也需要弹出最后一个字符。
+              </td>
+              </tr>
+              </table>
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">其他字符
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将它打印在屏幕上，并加入到 line 中
+              </td>
+              </tr>
+              </table>
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">Ctrl+A x 退出qemu模拟器
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">TODO
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">qemu相关
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">基于应用名的应用链接/加载器
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">实现 exec 系统调用的时候
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">根据应用的名字而不仅仅是一个编号来获取应用的 ELF 格式数据
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">链接器 os/build.rs 中按顺序保存链接进来的每个应用的名字
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">应用的名字通过 .string 伪指令放到数据段中
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">链接器会自动在每个字符串的结尾加入分隔符 \0 
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">位置由全局符号 _app_names 指出
+            </td>
+            </tr>
+            </table>
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">writeln!(f, r#".global _app_names _app_names:"#)?;
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">    for app in apps.iter() {
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">        writeln!(f, r#"    .string "{}""#, app)?;
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">loader.rs 
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">用一个全局可见的 只读 向量 APP_NAMES 来按照顺序将所有应用的名字保存在内存中：
+            </td>
+            </tr>
+            </table>
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">static ref APP_NAMES: Vec<&'static str> = {
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">get_app_data_by_name
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">按照应用的名字来查找获得应用的 ELF 数据
+            </td>
+            </tr>
+            </table>
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">list_apps
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">内核初始化时被调用，打印出所有可用应用的名字
+            </td>
+            </tr>
+            </table>
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进程标识符pid和内核栈
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">所有进程都有一个自己的pid
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">互不相同的整数
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub struct PidHandle(pub usize);
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">类似之前的物理页帧分配器 FrameAllocator
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">栈式分配策略的进程标识符分配器 PidAllocator
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">全局实例化为 PID_ALLOCATOR
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pid_alloc包装了一下alloc
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">static ref PID_ALLOCATOR: UPSafeCell<PidAllocator> =
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn pid_alloc() -> PidHandle {
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">内核栈
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将应用编号替换为pid来决定每个进程内核栈在address space中的位置
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在内核栈 KernelStack 中保存着它所属进程的 PID
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">RAII，drop会自动释放这段pfn
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub struct KernelStack {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pid: usize,
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn kernel_stack_position(app_id: usize) -> (usize, usize) {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">老样子，通过TRAMPOLINE和app_id获得对应app的os stack位置
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">impl KernelStack
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn new(pid_handle: &PidHandle) -> Self {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">new 方法可以从一个 PidHandle中对应生成一个内核栈 KernelStack
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">insert_framed_area跟之前一样
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">保存到KernelStack里
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn push_on_top<T>(&self, value: T) -> *mut T where
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将类型T压入os stack top返回T裸指针
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">使用下面get_top获取当前os stack top在os address space的地址
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn get_top(&self) -> usize {
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fn drop(&mut self) {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">.remove_area_with_start_vpn(kernel_stack_bottom_va.into());
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进程控制块
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">PCB-TCB
+        </td>
+        </tr>
+        </table>
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">PCB, Process Control Block内核对进程进行管理的单位
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">等价一个进程process
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">对TCB做些改动，直接变成PCB
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进程调用 exit 系统调用主动退出或者执行出错由内核终止的退出码被内核保存在它的TCB中
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">等待它的父进程通过 waitpid 回收它的资源的同时也收集它的 PID 以及退出码
+            </td>
+            </tr>
+            </table>
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3pub struct TaskControlBlock {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4    // immutable
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5    pub pid: PidHandle,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">6    pub kernel_stack: KernelStack,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">7    // mutable
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">8    inner: UPSafeCell<TaskControlBlockInner>,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">9}
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">10
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">11pub struct TaskControlBlockInner {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">12    pub trap_cx_ppn: PhysPageNum,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">app address space的 TrapContext被放在的ppn
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">13    pub base_size: usize,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">app data仅有可能出现在应用地址空间低于 base_size 字节的区域中。借助它我们可以清楚的知道应用有多少数据驻留在内存中。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">14    pub task_cx: TaskContext,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">保存TaskContext，用于任务切换
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">15    pub task_status: TaskStatus,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当前进程的执行状态
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">16    pub memory_set: MemorySet,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">app address space
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">17    pub parent: Option<Weak<TaskControlBlock>>,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当前进程的父进程,Weak不影响父进程引用计数
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">18    pub children: Vec<Arc<TaskControlBlock>>,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">子进程，Arc包裹
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">19    pub exit_code: i32,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">20}
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">impl TCB
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">没啥东西
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">任务管理器
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">TaskManager
+        </td>
+        </tr>
+        </table>
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">TaskManager
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">需要将taskmanager对于 CPU 的监控职能拆分到处理器管理结构 Processor 中去
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">taskmanager自身仅负责管理所有task
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这里的task就是process
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub struct TaskManager {
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">    ready_queue: VecDeque<Arc<TaskControlBlock>>,
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">双端队列+Arch
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">TCB经常需要放入/取出
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">直接移动会带来大量数据拷贝开销
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn add_task(task: Arc<TaskControlBlock>) {
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn fetch_task() -> Option<Arc<TaskControlBlock>> {
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">用于RR算法
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">处理器管理结构
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">Processor
+        </td>
+        </tr>
+        </table>
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">Processor
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">维护从任务管理器 TaskManager 分离出去的那部分 CPU 状态
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub struct Processor {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">current: Option<Arc<TaskControlBlock>>,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当前处理器上正在执行的任务
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">idle_task_cx: TaskContext,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当前处理器上的 idle 控制流的TaskContext的address
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">单核环境下，我们仅创建单个 Processor 的全局实例 PROCESSOR 
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub static ref PROCESSOR: UPSafeCell<Processor> = unsafe { UPSafeCell::new(Processor::new()) };
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">一些current相关的接口
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">每个 Processor 都有一个 idle 控制流
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">运行在每个核各自的启动栈上
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">尝试从taskmanager中选出一个任务来在当前核上执行
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">os初始化完毕之后，核通过调用 run_tasks 函数来进入 idle 控制流
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当一个应用交出 CPU 使用权时，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">比如suspend_current_and_run_next或exit....
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进入内核后它会调用 schedule 函数来切换到 idle 控制流并开启新一轮的任务调度。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn run_tasks() {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">循环调用 fetch_task 直到顺利从taskmanager中取出一个任务
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">获得 __switch 两个参数进行任务切换。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">整个过程要严格控制临界区，多个drop
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">要严格控制临界区
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn schedule(switched_task_cx_ptr: *mut TaskContext) {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">__switch(switched_task_cx_ptr, idle_task_cx_ptr);
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">切换回去之后，我们将跳转到 Processor::run 中 __switch 返回之后的位置，开启下一轮循环。
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">TODO
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这块还没太理解
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">初始进程的创建
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">INITPROC
+        </td>
+        </tr>
+        </table>
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">os初始化完毕
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">lazy_stakic初始进程的进程控制块 INITPROC 
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">调用add_initproc 来将初始进程 initproc 加入taskmanager
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub static ref INITPROC: Arc<TaskControlBlock> = Arc::new(TaskControlBlock::new(
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">get_app_data_by_name("initproc").unwrap()
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">));
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn add_initproc() {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">add_task(INITPROC.clone());
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">TCB::new
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">解析 ELF 得到
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">应用地址空间 memory_set
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">user stack在app address space中的位置 user_sp 
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">app的入口点 entry_point 。
+            </td>
+            </tr>
+            </table>
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">手动查page table找到应用address space中的 TrapContext实际所在的pfn。
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">为新process分配 PID 以及process os stack，并记录下process os stack在os address space的位置 
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">kernel_stack_top 
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">该进程的os stack上压入INITPROC的taskContext，使得第一次任务切换switch到它的时候可以跳转到 trap_return 并进入U-Mode开始执行。
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">整合信息创建tcb
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">初始化app address space中的TrapContext
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">使得第一次进入U-Mode能正确跳转到app entry point并设置好app stack
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">保证Trap的时候U-Mode能正确进入S-Mode
+            </td>
+            </tr>
+            </table>
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进程调度机制
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">suspend_current_and_run_next
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">暂停当前任务切换到下一个任务
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">典型场景
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_yield() -> isize {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">suspend_current_and_run_next();
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn trap_handler() -> ! {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">set_kernel_trap_entry();
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">let scause = scause::read();
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">let stval = stval::read();
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">match scause.cause() {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">Trap::Interrupt(Interrupt::SupervisorTimer) => {
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">set_next_trigger();
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">suspend_current_and_run_next();
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">重新实现
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">通过 take_current_task 来取出当前正在执行的任务
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">修改其tcb内的状态-Ready
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将这个task放入taskmanager的队尾
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">调用 schedule 切换任务
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">仅有一个任务的时候， suspend_current_and_run_next 的效果是继续执行这个任务。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进程的生成机制
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fork
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">最为关键且困难一点的是为子进程创建一个和父进程几乎完全相同的地址空间
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">MapArea::from_another
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">从一个逻辑段MemorySet复制得到一个虚拟地址区间virtual range、映射方式type和权限控制flag均相同的逻辑段
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">由于它还没有真正被映射到物理页帧pfn上，所以 data_frames 字段为空。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">MapArea::from_existed_user
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">复制一个完全相同的地址空间
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">new_bare 新创建一个空的地址空间
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">map_trampoline 为这个地址空间映射上跳板页面
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">因为我们解析 ELF 创建address space的时候，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">并没有将跳板页作为一个单独的逻辑段MemorySet插入到地址空间address space的逻辑段向量 areas 中
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">遍历原address space中的所有MemorySet，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将复制之后的逻辑段MemorySet插入新的address space， 在插入的时候就已经实际分配了物理页帧pfn了。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">遍历逻辑段中的每个虚拟页面virtual page，对应完成数据data复制
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">只需要找出两个地址空间中的virtual page各被映射到哪个物理页帧pfn，就可转化为将数据data从物理内存中的一个位置复制到另一个位置，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">使用 copy_from_slice 即可轻松实现。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">TaskControlBlock::fork
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">从父进程的进程控制块tcb创建一份子进程的控制块tcb
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">基本上和新建进程控制块tcb的 TaskControlBlock::new 相同
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">子进程的地址空间address space不是通过解析 ELF，
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">MemorySet::from_existed_user 复制父parent进程process地址空间address space得到的；
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在 fork 的时候需要注意父子进程关系的维护。。
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">父进程的弱引用计数放到子进程的进程控制块中，
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">子进程插入到父进程的孩子向量 children 中
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_fork() -> isize {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">需要特别注意如何体现父子进程的差异
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">调用 sys_fork 之前，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">我们已经将当前process TrapContext中的 sepc 向后移动了 4 字节
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">它回到U-Mode之后会从 ecall 的下一条指令开始执行
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当我们复制address space时
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">child process address space的 TrapContext的 sepc 也是移动之后的值
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">无需再进行修改
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">父子进程回到用户态的瞬间都处于刚刚从一次系统调用返回的状态
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">二者返回值不同
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">child process的 TrapContext中用来存放syscall返回值的 a0 寄存器修改为 0
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">parent process的syscall的返回值会在 syscall 返回之后再设置为 sys_fork 的返回值
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">做到了parent process fork 的返回值为child process的 PID ，而子进程的返回值为 0。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">exec
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">使得一个进程能够加载一个新的 ELF 可执行文件替换原有的app address space并开始执行
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">impl tcb
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn exec(&self, elf_data: &[u8]) {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">解析传入的 ELF 格式数据之后做两件事情
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">从 ELF 生成一个全新的address space并直接替换进来（第 15 行），
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这将导致原有address space生命周期结束，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">里面包含的全部pfn都会被回收；
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">然后修改新的address space中的 TrapContext，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将解析得到的app entry、app stack位置以及一些内核的信息进行初始化，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这样才能正常实现 Trap 机制。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_exec(path: *const u8) -> isize {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">调用 translated_str 找到要执行的应用名
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">试图从应用加载器提供的 get_app_data_by_name 接口中获取对应的 ELF 数据
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">找到的话就调用 TaskControlBlock::exec 替换address space
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">app在 sys_exec syscall中传递给os的只有一个应用名字符串在app address space中的首地址
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">需要手动查页表来获得字符串的值
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn translated_str(token: usize, ptr: *const u8) -> String {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">从用户地址空间app address space中查找字符串
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">原理就是逐字节查页表page table直到发现一个 \0 为止
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">因为内核不知道字符串的长度，且字符串可能是跨物理页pfn的
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">系统调用后重新获取 Trap 上下文
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn trap_handler() -> ! {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">原来的cx是当前app的TrapContext的可变引用
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">通过查页表找到它具体被放在哪个物理页帧pfn上
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">构造相同的虚拟地址virtual address来在内核os中访问它
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">对于系统调用 sys_exec 来说，调用它之后， trap_handler 原来上下文Context中的 cx 失效了
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">因为它是就原来的地址空间address space而言
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">因此在在 syscall 返回之后需要重新获取 cx
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">sys_read
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_read(fd: usize, buf: *const u8, len: usize) -> isize {
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">仅支持从标准输入 FD_STDIN 即文件描述符 0 读入
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">每次只能读入一个字符
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">利用 sbi 提供的接口 console_getchar 实现
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果还没有输入，我们就切换到其他进程process，等下次切换回来时再看看是否有输入了。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">获取到输入后就退出循环，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">并手动查页表将输入字符正确写入到应用地址空间app address space。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进程资源回收机制
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进程的退出
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">都是使用exit_current_and...
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_exit(exit_code: i32) -> ! {
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn trap_handler() -> ! {
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">exit_current_and_run_next(exit_code);
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">带有一个退出码作为参数
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">退出码会在 exit_current_and_run_next 写入当前进程的tcb
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">调用 take_current_task 来将当前tcb从处理器监控 PROCESSOR 中取出
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将进程tcb中的status修改为 TaskStatus::Zombie 即僵尸进程；
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">传入的退出码 exit_code 写入tcb中，后续父进程在 waitpid 的时候可以收集；
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将当前进程的所有子进程child process挂在初始进程 initproc 下面。将当前进程的child vec清空
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">对于当前进程占用的资源进行早期回收。 
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">MemorySet::recycle_data_pages 只是将address space中的逻辑段MemorySet列表 areas 清空，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这将导致应用地址空间app address space的所有数据data被存放在的物理页帧pfn被回收，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">而用来存放页表page table的那些物理页帧此时则不会被回收。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">调用 schedule 触发调度及任务切换，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">我们再也不会回到该进程的执行过程，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">无需关心任务上下文的保存。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">父进程回收子进程资源
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_waitpid(pid: isize, exit_code_ptr: *mut i32) -> isize {
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">立即返回的系统调用
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果当前的process不存在一个符合要求的child process，则返回 -1；
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">至少存在一个，但是其中没有zombie process（也即仍未退出）则返回 -2；
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果都不是的话则可以正常回收并返回回收child process的 pid 
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在编写应用的开发者看来，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;"> wait/waitpid 两个辅助函数都必定能够返回一个有意义的结果，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">要么是 -1，要么是一个正数 PID ，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">不存在 -2 这种通过等待即可消除的中间结果的。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">等待的过程由用户库 user_lib 完成
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">首先判断 sys_waitpid 是否会返回 -1 ，这取决于current process是否有一个符合要求的子进程。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">传入的 pid 为 -1 的时候，任何一个子进程都算是符合要求；
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pid 不为 -1 的时候，则只有 PID 恰好与 pid 相同的子进程才算符合条件。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">再判断符合要求的child process中是否有zombie process
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">找不到的话直接返回 -2 ，否则进行下一步处理：
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将child process从向量中移除并置于当前Context中
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">TODO
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">啥是置于当前Context
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当它所在的代码块结束，这次引用变量的生命周期结束，
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">child process tcb子进程进程控制块的引用计数将变为 0 ，
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">内核将彻底回收掉它占用的所有资源，
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">包括内核栈os stack、它的 PID 、存放页表page table的那些物理页帧pfn等等。
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">获得child process退出码exit code后，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">考虑到应用app传入的指针指向应用地址空间app address space，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">我们还需要手动查页表page table找到对应物理内存中的位置。 
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">translated_refmut 的实现可以在 os/src/mm/page_table.rs 中找到。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    </table>
+  </td>
+  </tr>
+  </table>
+</td>
+</tr>
+</table>
+
+</body>
+</html>

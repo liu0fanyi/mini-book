@@ -1,0 +1,3809 @@
+<html>
+<head>
+<style>
+table {
+border-collapse: collapse;
+margin-left: 0;          /* 强制左对齐 */
+width: auto;             /* 宽度自适应内容 */
+}
+table, th, td {
+border: 1px solid black;
+text-align: left;        /* 文本左对齐 */
+padding: 4px 8px;       /* 添加内边距 */
+}
+</style>
+</head>
+<body>
+<table style="border-width: 2pt; font-size: 14pt;">
+<tr>
+<td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+  <table style="border-width: 2pt; font-size: 13pt;">
+  <tr>
+  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+    <table style="border-width: 2pt; font-size: 12pt;">
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件系统
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">branch ch6
+    </td>
+    </tr>
+    </table>
+  </td>
+  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+    <table style="border-width: 2pt; font-size: 12pt;">
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">抽象file
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub trait File : Send + Sync {
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fn readable(&self) -> bool;
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fn writable(&self) -> bool;
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fn read(&self, buf: UserBuffer) -> usize;
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fn write(&self, buf: UserBuffer) -> usize;
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">UserBuffer 是我们在 mm 子模块中定义的app address space中的一段缓冲区
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">看成一个 &[u8] 切片
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">read 指的是从文件（即I/O资源）中读取数据放到缓冲区中，最多将缓冲区填满（即读取缓冲区的长度那么多字节），并返回实际读取的字节数；
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">write 指的是将缓冲区中的数据写入文件，最多将缓冲区中的数据全部写入，并返回直接写入的字节数
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn translated_byte_buffer(
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">只是将我们调用 translated_byte_buffer 获得的包含多个切片slice的 Vec 进一步包装起来
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn len(&self) -> usize {
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">通过 len 方法可以得到缓冲区的长度
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">作为一个迭代器可以逐字节进行读写
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">stdin/stdout
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">前面已有过的
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">sys_write
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">sys_read
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">重写系统调用
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">提前把标准输出stdout设备在文件描述符表中的文件描述符file descriptor的值规定为 1 
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">impl File for Stdout {
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">输出文件 Stdout 是只写文件
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">只允许进程通过 write 写入到里面
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">遍历每个切片，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将其转化为字符串通过 print! 宏来输出。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">标准输入stdin设备文件描述符file descriptor规定为 0
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">impl File for Stdin {
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">标准输入文件 Stdin 是只读文件
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">只允许进程通过 read 从里面读入
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">每次仅支持读入一个字符
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">基本与sys_read相同
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">只是需要通过 UserBuffer 来获取具体将字节写入的位置
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件描述符与文件描述符表
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">简化操作系统设计实现
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">每个进程都带有一个线性的文件描述符表 
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">记录所有它请求内核打开并可以读写的那些文件集合
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件描述符 (File Descriptor) 则是一个非负整数
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">表示文件描述符表中一个打开的 文件描述符 所处的位置（可理解为数组下标）
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进程通过文件描述符，可以在自身的文件描述符表中找到对应的文件记录信息
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">找到了对应的文件
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">对文件进行读写
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当打开（ open ）或创建（ create ） 一个文件的时候，
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果顺利，内核会返回给应用刚刚打开或创建的文件对应的文件描述符
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">关闭（ close ）一个文件的时候，也需要向内核提供对应的文件描述符
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件I/O操作
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进程tcb中加入文件描述符表fb_table的相应字段
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">Vec<Option<Arc<dyn File + Send + Sync>>>
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">多态 (Polymorphism) 指的是在同一段代码中可以隐含多种不同类型的特征。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在 Rust 中主要通过泛型和 Trait 来实现多态
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">泛型是一种 编译期多态 (Static Polymorphism)，在编译一个泛型函数的时候，编译器会对于所有可能用到的类型进行实例化并对应生成一个版本的汇编代码，在编译期就能知道选取哪个版本并确定函数地址，这可能会导致生成的二进制文件体积较大；
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">而 Trait 对象（也即上面提到的 dyn 语法）是一种 运行时多态 (Dynamic Polymorphism)，需要在运行时查一种类似于 C++ 中的 虚表 (Virtual Table) 才能找到实际类型对于抽象接口实现的函数地址并进行调用，这样会带来一定的运行时开销，但是更为灵活。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">TODO
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">暂时算给rust
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">新建一个进程process/tcb的时候，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">我们需要按照先前的说明为进程process打开标准输入文件stdin和标准输出文件stdout
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;"> fork 时
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">子进程child需要完全继承父parent进程的文件描述符表来和父进程共享所有文件。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">即使我们仅手动为初始进程 initproc 打开了标准输入输出，所有进程也都可以访问它们。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fd_table: vec![
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">    // 0 -> stdin
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">    Some(Arc::new(Stdin)),
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">    // 1 -> stdout
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">    Some(Arc::new(Stdout)),
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">    // 2 -> stderr
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">    Some(Arc::new(Stdout)),
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">],
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件读写系统调用
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_write(fd: usize, buf: *const u8, len: usize) -> isize {
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_read(fd: usize, buf: *const u8, len: usize) -> isize {
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在当前进程tcb的文件描述符表fd_table中通过文件描述符file descriptor找到某个文件
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">无需关心文件具体的类型
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">它一定实现了 File Trait 的 read/write 方法
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">easy-fs
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">简化
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">扁平化
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">仅存在根目录 / 一个目录，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">所有的文件都放在根目录内。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">直接以文件名索引文件。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">不设置用户和用户组概念，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">不记录文件访问/修改的任何时间戳，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">不支持软硬链接。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">最基本的文件系统相关系统调用。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">打开与读写文件的系统调用
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fn sys_openat(dirfd: usize, path: &str, flags: u32, mode: u32) -> isize
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">打开一个常规文件，并返回可以访问它的文件描述符。
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">path 描述要打开的文件的文件名（简单起见，文件系统不需要支持目录，所有的文件都放在根目录 / 下），
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">flags 描述打开文件的标志，
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果 flags 为 0，则表示以只读模式 RDONLY 打开；
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果 flags 第 0 位被设置（0x001），表示以只写模式 WRONLY 打开；
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果 flags 第 1 位被设置（0x002），表示既可读又可写 RDWR ；
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果 flags 第 9 位被设置（0x200），表示允许创建文件 CREATE ，在找不到该文件的时候应创建文件；如果该文件已经存在则应该将该文件的大小归零；
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果 flags 第 10 位被设置（0x400），则在打开文件的时候应该清空文件的内容并将该文件的大小归零，也即 TRUNC 。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">dirfd 和 mode 仅用于保证兼容性，忽略
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">果出现了错误则返回 -1，否则返回打开常规文件的文件描述符。可能的错误原因是：文件不存在。
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">syscall ID：56
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn open(path: &str, flags: OpenFlags) -> isize {
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">sys_openat(AT_FDCWD as usize, path, flags.bits, OpenFlags::RDWR.bits)
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">上面的封装
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">顺序读写文件示例(不考虑随机读写)，ch6b_filetest_simple
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">以 只写 + 创建 的模式打开文件 filea
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">向其中写入字符串 Hello, world! 而后关闭文件。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">再只读 的方式将文件 filea 的内容读取到缓冲区 buffer 中
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">filea 的总大小不超过缓冲区的大小
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">通过单次 read 即可将内容全部读出来
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">更常见的情况是需要进行多次 read
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">直到返回值为 0 才能确认文件已被读取完毕
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">松耦合模块化设计思路
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">easy-fs 是简易文件系统的本体
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">easy-fs-fuse 是能在开发环境（如 Ubuntu）中运行的应用程序
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将应用打包为 easy-fs 格式的文件系统镜像
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">可以用来对 easy-fs 进行测试
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">easy-fs与底层设备驱动之间通过抽象接口 BlockDevice 来连接
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">采用轮询方式访问 virtio_blk 虚拟磁盘设备
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">避免调用外设中断的相关内核函数
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">避免了直接访问进程process相关的数据和函数
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">能独立于内核开发
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">五个层次
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">磁盘块设备接口层：以块为单位对磁盘块设备进行读写的 trait 接口
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">块缓存层：在内存中缓存磁盘块的数据，避免频繁读写磁盘
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">磁盘数据结构层：磁盘上的超级块、位图、索引节点、数据块、目录项等核心数据结构和相关处理
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">磁盘块管理器层：合并了上述核心数据结构和磁盘布局所形成的磁盘文件系统数据结构
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">索引节点层：管理索引节点，实现了文件创建/文件打开/文件读写等成员函数
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;"><img src="data:image/png;base64,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pA6lRERERERERP8lDMNERERERES0cxiGiYiIiIiIaOcwDBMREREREdHOYRgmIiIiIiKincMwTERERERERDtn+2G42WzKsiwIAmZgcrAkERER0Y7AyPfValWr1RRFwd+ERESvY/th2DTNZrMpfJ7byTBMREREtCPKssyyrCxLURQ1TcPfhEREr2P7Ydi2bVVVBUEoiiLLMoZhIiIioh2xHoZN09Q0bdsrIqId8kOEYV3XBUHIsixNU4ZhIiIioh1RFEUcx0VRiKLYarVQICEieh3bD8PtdhufAiZJEkVRURTbXhERERERvYYsy3zfz7JMkiTDMFgZJqLXtP0w7DgOKsN5nidJkmUZ8zARERHRf9tqtcrzPE3TJElQGbZtu9VqbXtdRLRDth+Gu90u/uMrigL/IWZZtu1FEREREdF3VJZl9YdfWZayLDMME9Er234Ytizr4ODg999/b7fbRVH4vh9F0Wq14uFhIiIiov8kTFTyPC+KIkEQDg8P37171+12eWaYiF6TtO0FCLqu9/v93377LU3TIAjiOJYkqdlsSpIkimKtVqvVatteIxERERG9gNVqVZZlURRRFIVhmOd5o9E4Ojo6Oztrt9uNRmPbCySiHbL9MCwIgm3bzWZzOp0uFovlchkEQZ7naKLQaDQYhomIiIj+G3AszvO8MAzjOFYUxbbt09PTk5MTRVG2vToi2i0/RBiWZVmW5Tdv3kRR9OnTJ/z/uFqtsixrNBqNRkOSpPpnzMZERERE/xYoBaMajDmaGCCS57miKP1+//T0tN/vo50qEdFr+iHCMBwfH8uynKbpxcVFGIae5wVBIMuyqqqtVkuWZVSJGYaJiIiI/i3KssyyLMuyOI59369apTYaDdSE//jjD9M0t71MItpFtR+nT1WWZWEYTqfTq6ur8/Pz4XC4WCzq9booirIs4x8Mw0RERET/IhuV4aIoyrI8ODg4Ojr66aef+v1+t9uVZVkUxW2vlIh2zg9UGZZl2bIsy7IMw9B1HQ208jwviiLPc7TdL4rix0nvRERERPSwWq0miqIoipIkqaqKP/Devn17dnZ2enqqadq2F0hEu+sHqgxXsJHm9vZ2NpvN53PXdT3P8zzP9310Hdz2AomIiIjoSRRF0TTNNM1Wq2UYhmVZ7Xa72+2ifyoLwkS0RT9iGIYoioIgQADGv+M4juO4KIptL42IiIiInkSW5Wazqaqqruuapum63mq1VFXlFCUi2rofNwyv+1cskoiIiIgewM4vRPRD+XeEYSIiIiIiIqIXVN/2AoiIiIiIiIheG8MwERERERER7RyGYSIiIiIiIto5DMNERERERES0cxiGiYiIiIiIaOcwDBMREREREdHOYRgmIiIiIiKincMwTERERERERDuHYZiIiIiIiIh2DsMwERERERER7RyGYSIiIiIiIto5DMNERERERES0cxiGiYiIiIiIaOcwDBMREREREdHOYRgmIiIiIiKincMwTERERERERDuHYZiIiIiIiIh2DsMwERERERER7RyGYSIiIiIiIto5/weLoGvEQubyaQAAAABJRU5ErkJggg==" />
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">块设备接口层
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">块设备的抽象接口BlockDevice
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">read_block 可以将编号为 block_id 的块从磁盘读入内存中的缓冲区 buf ；
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">write_block 可以将内存中的缓冲区 buf 中的数据写入磁盘编号为 block_id 的块。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">easy-fs 的使用者将负责提供抽象方法的实现。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">块缓存层
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">内存可以作为磁盘的缓存
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">block_cache.rs 
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub struct BlockCache {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">cache: [u8; BLOCK_SZ],
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">cache 是一个 512 字节的数组，表示位于内存中的缓冲区；
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">block_id: usize,
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">block_id 记录了这个块的编号
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">block_device: Arc<dyn BlockDevice>,
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">block_device 记录块所属的底层设备；
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">modified: bool,
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">modified 记录自从这个块缓存从磁盘载入内存之后，它有没有被修改过。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">创建 BlockCache 时，将一个块从磁盘读到缓冲区 cache ：
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn new(
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">block_device.read_block(block_id, &mut cache);
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">impl BlockCache
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fn addr_of_offset(&self, offset: usize) -> usize {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">&self.cache[offset] as *const _ as usize
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">得到一个 BlockCache 内部的缓冲区中指定偏移量 offset 的字节地址
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn get_ref<T>(&self, offset: usize) -> &T where T: Sized {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">获取缓冲区中的位于偏移量 offset 的一个类型为 T 的磁盘上数据结构的不可变引用。
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">该泛型方法的 Trait Bound 限制类型 T 必须是一个编译时已知大小的类型
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">通过 core::mem::size_of::<T>() 在编译时获取类型 T 的大小并确认该数据结构被整个包含在磁盘块及其缓冲区之内。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn get_mut<T>(&mut self, offset: usize) -> &mut T where T: Sized {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">get_mut 上面的可变引用
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将 BlockCache 的 modified 标记为 true 表示该缓冲区已经被修改
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">之后需要将数据写回磁盘块才能真正将修改同步到磁盘。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn read<T, V>(&self, offset: usize, f: impl FnOnce(&T) -> V) -> V {
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn modify<T, V>(&mut self, offset:usize, f: impl FnOnce(&mut T) -> V) -> V {
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">get_ref和get_mut的进一步封装
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">BlockCache 的生命周期结束后，缓冲区也会被回收
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">odified 标记将会决定数据是否需要写回磁盘
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">impl Drop for BlockCache {
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">块缓存全局管理器
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">内存只能同时缓存有限个磁盘块
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当我们要对一个磁盘块进行读写时，块缓存全局管理器检查它是否已经被载入内存中，如果是则直接返回，否则就读取磁盘块到内存。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果内存中驻留的磁盘块缓冲区的数量已满，则需要进行缓存替换。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">里使用一种类 FIFO 的缓存替换算法，在管理器中只需维护一个队列
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">BlockCacheManager 
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">queue: VecDeque<(usize, Arc<Mutex<BlockCache>>)>,
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">queue 维护块编号和块缓存的二元组
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">共享引用意义在于块缓存既需要在管理器 BlockCacheManager 保留一个引用，还需要将引用返回给块缓存的请求者
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">互斥访问在单核上的意义在于提供内部可变性通过编译
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">多核环境下则可以帮助我们避免可能的并发冲突
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn get_block_cache(
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">尝试从块缓存管理器中获取一个编号为 block_id 的块缓存
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">遍历整个队列试图找到一个编号相同的块缓存，
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">到，将块缓存管理器中保存的块缓存的引用复制一份并返回
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">找不到，将块从磁盘读入内存中的缓冲区。
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">读取前需要判断已保存的块数量是否达到了上限
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">是，则执行缓存替换算法，替换的标准是其强引用计数 =1
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">即除了块缓存管理器保留的一份副本之外，在外面没有副本正在使用。
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">创建一个新的块缓存（会触发 read_block 进行块读取）并加入到队尾，最后返回给请求者。
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">磁盘布局及磁盘上数据结构
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">layout.rs 和 bitmap.rs
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">按照块block编号从小到大顺序分成 5 个连续区域
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">第一个区域1个block，它是 超级块 (Super Block)，用于定位其他连续区域的位置，检查文件系统合法性。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">第二个区域是一个索引节点位图inode bitmap，长度为几个block。它记录了索引节点区域中有哪些索引节点inode已经被分配出去使用了。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">第三个区域是索引节点区域inode，长度为若干个块block。其中的每个块block都存储了若干个索引节点inodes。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">第四个区域是一个数据块data block位图bitmaps，长度为若干个块。它记录了后面的数据块区域中有哪些已经被分配出去使用了。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">最后的区域则是数据块区域data block，其中的每个被分配出去的块保存了文件或目录的具体内容。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">超级块super block
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">#[repr(C)]
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub struct SuperBlock {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">magic: u32,
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">magic 是一个用于文件系统合法性验证的魔数
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub total_blocks: u32,
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">total_block 给出文件系统的总块数
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub inode_bitmap_blocks: u32,
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">后面的四个字段则分别给出 easy-fs 布局中后四个连续区域的长度各为多少个块
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub inode_area_blocks: u32,
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub data_bitmap_blocks: u32,
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub data_area_blocks: u32,
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn initialize(
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn is_valid(&self) -> bool {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">通过魔数判断超级块所在的文件系统是否合法。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">bitmap
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">两种，索引节点inode和数据data块
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">每个位图bitmap都由若干个块block组成，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">每个块大小 4096 bits。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">每个 bit 都代表一个索引节点/数据块的分配状态。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub struct Bitmap {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">start_block_id: usize,
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">blocks: usize,
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">存了位图bitmap区域的起始块编号和块数
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">type BitmapBlock = [u64; 64];
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将位图区域中的一个磁盘块block解释为长度为 64 的一个 u64 数组
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">每个u64都是64个bit标志位，可以用来表示对应bit的block有没有占用，所以一共可以表示64*64=4096个blocks是否占用
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">BLOCK_BITS=BLOCK_SZ * 8
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">BLOCK_SZ的大小是bytes吧
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">impl Bitmap
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn alloc(&self, block_device: &Arc<dyn BlockDevice>) -> Option<usize> {
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">分配一个bit
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">遍历区域中的每个块block
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">循环内部我们需要读写这个块，块内尝试找到一个空闲的bit并置 1 。一旦涉及到块的读写，就需要用到块缓存block cache层提供的接口：
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                    <table style="border-width: 2pt; font-size: 4pt;">
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">get_block_cache 获取块缓存
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">传入的块编号是区域起始块编号 start_block_id 加上区域内的块编号 block_id 得到的块设备上的块编号
+                    </td>
+                    </tr>
+                    </table>
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                    <table style="border-width: 2pt; font-size: 4pt;">
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">通过 .lock() 获取块缓存的互斥锁从而可以对块缓存进行访问
+                    </td>
+                    </tr>
+                    </table>
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                    <table style="border-width: 2pt; font-size: 4pt;">
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">使用到了 BlockCache::modify 接口
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">传入的偏移量 offset 为 0
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">因为整个块上只有一个 BitmapBlock
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">大小恰好为 512 字节/4096 bits，(u64)8bytes * 64
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">需要从块的开头开始才能访问到完整的 BitmapBlock
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">传给它的闭包需要显式声明参数类型为 &mut BitmapBlock
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">不然BlockCache 的泛型方法 modify/get_mut 无法得知应该用哪个类型来解析块上的数据
+                    </td>
+                    </tr>
+                    </table>
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">再在每个块block中以bit组（每组 64 bits）为单位进行遍历
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">找到一个尚未被全部分配出去的组group
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在里面分配一个bit
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">会返回分配的bit所在的位置
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">等同于索引节点/数据块的编号
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果所有bit均已经被分配出去了，则返回 None
+                    <table style="border-width: 2pt; font-size: 4pt;">
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">尝试在 bitmap_block 中找到一个空闲的bit并返回其位置
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">遍历每 64 bits构成的组（一个 u64 ）
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果没有达到2^64-1说明有空位
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                      <table style="border-width: 2pt; font-size: 3pt;">
+                      <tr>
+                      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">通过 u64::trailing_ones 找到最低的一个 0 并置为 1
+                      </td>
+                      </tr>
+                      <tr>
+                      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这个位置保存在inner_pos里
+                      </td>
+                      </tr>
+                      </table>
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                      <table style="border-width: 2pt; font-size: 3pt;">
+                      <tr>
+                      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">u64所在BitmapBlock的pos保存在bits64_pos中
+                      </td>
+                      </tr>
+                      </table>
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                      <table style="border-width: 2pt; font-size: 3pt;">
+                      <tr>
+                      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">最后的bit编号计算方式是 block_id*BLOCK_BITS+bits64_pos*64+inner_pos
+                      </td>
+                      </tr>
+                      </table>
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">闭包中的 block_id 从外部捕获
+                    </td>
+                    </tr>
+                    </table>
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">回收类似
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">磁盘上索引节点inode
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">inode索引节点区域
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">每个块上都保存着若干个索引节点 DiskInode
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">包含文件/目录的元数据
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub struct DiskInode {
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub size: u32,
+                </td>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">表示文件/目录内容的字节数
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub direct: [u32; INODE_DIRECT_COUNT],
+                </td>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">存储文件内容/目录内容的数据块的索引
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub indirect1: u32,
+                </td>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub indirect2: u32,
+                </td>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">type_: DiskInodeType,
+                </td>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">表示索引节点的类型 DiskInodeType
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">File
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">Directory
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">为了尽可能节约空间，在进行索引的时候，块block的编号用一个 u32 存储
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">索引方式分成直接索引direct和间接索引indirect两种
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件很小的时候，只需用到直接索引，
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">direct 数组中最多可以指向 INODE_DIRECT_COUNT 个数据块，
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当取值为 28 的时候，通过直接索引可以找到 14KiB 的内容。28 * 512 = 14kb
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件比较大的时候，不仅直接索引的 direct 数组装满，还需要用到一级间接索引 indirect1 。
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">指向一个一级索引块，这个块也位于磁盘布局的数据块data block区域中。
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这个一级索引块中的每个 u32/4bytes 都用来指向数据块区域中一个保存该文件内容的数据块，
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">最多能够索引512/4=128个data block
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">对应64kb
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件大小超过直接索引和一级索引支持的容量上限 14+64=78KiB 的时候，就需要用到二级间接索引 indirect2
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">指向一个位于数据块区域中的二级索引块
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">二级索引块中的每个 u32 指向一个不同的一级索引块
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这些一级索引块也位于数据块区域中
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">通过二级间接索引最多能够索引 128 x64kb = 8mb
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">为了充分利用空间，我们将 DiskInode 的大小设置为 128 字节
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">每个块正好能够容纳 4 个 DiskInode 
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在后续需要支持更多类型的元数据的时候
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">适当缩减直接索引 direct 的块数
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将节约出来的空间用来存放其他元数据
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">仍可保证 DiskInode 的总大小为 128 字节
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn initialize(&mut self, type_: DiskInodeType) {
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">初始化一个 DiskInode 为一个文件或目录
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">indirect1/2 均被初始化为 0
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">最开始文件内容的大小为 0 字节
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">并不会用到一级/二级索引
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">为了节约空间，我们会完全按需分配一级/二级索引块。
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">此外，直接索引 direct 也被清零
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn is_dir(&self) -> bool {
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn is_file(&self) -> bool {
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn get_block_id(&self, inner_id: u32, block_device: &Arc<dyn BlockDevice>) -> u32 {
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">最重要的数据块索引功能
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">从索引中查到它自身用于保存文件内容的第 block_id 个数据块的块编号
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">后续才能对这个数据块进行访问
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">分别利用直接索引/一级索引和二级索引，具体选用哪种索引方式取决于 block_id 所在的区间。
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">对一个索引块进行操作的时候，我们将其解析为磁盘数据结构 IndirectBlock ，
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">实质上就是一个 u32 数组，
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">每个都指向一个下一级索引块或者数据块
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">对于二级索引的情况，需要先查二级索引块找到挂在它下面的一级索引块，再通过一级索引块找到数据块。
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn increase_size(
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">初始化之后文件/目录的 size 均为 0
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">并不会索引到任何数据块
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">需要通过 increase_size 方法逐步扩充容量
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                    <table style="border-width: 2pt; font-size: 4pt;">
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn increase_size(
+                      <table style="border-width: 2pt; font-size: 3pt;">
+                      <tr>
+                      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">&mut self,
+                      </td>
+                      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                      </td>
+                      </tr>
+                      <tr>
+                      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">new_size: u32,
+                      </td>
+                      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">容量扩充之后的文件大小
+                      </td>
+                      </tr>
+                      <tr>
+                      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">new_blocks: Vec<u32>,
+                      </td>
+                      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">new_blocks 是一个保存了本次容量扩充所需块编号的向量，这些块都是由上层的磁盘块block管理器manager负责分配的。
+                      </td>
+                      </tr>
+                      <tr>
+                      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">block_device: &Arc<dyn BlockDevice>,
+                      </td>
+                      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                      </td>
+                      </tr>
+                      </table>
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">);
+                    </td>
+                    </tr>
+                    </table>
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">大致的思路是按照直接索引、一级索引再到二级索引的顺序进行扩充
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">扩充的时候，自然需要一些新的数据块来作为索引块或是保存内容的数据块
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">编写一些辅助方法来确定在容量扩充的时候额外需要多少块
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn data_blocks(&self) -> u32 {
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fn _data_blocks(size: u32) -> u32 {
+                    <table style="border-width: 2pt; font-size: 4pt;">
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">(size + BLOCK_SZ as u32 - 1) / BLOCK_SZ as u32
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">data_blocks 方法可以计算为了容纳自身 size 字节的内容需要多少个数据块
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">size 除以每个块的大小 BLOCK_SZ 并向上取整
+                    </td>
+                    </tr>
+                    </table>
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn total_blocks(size: u32) -> u32 {
+                    <table style="border-width: 2pt; font-size: 4pt;">
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">total_blocks 不仅包含数据块，还需要统计索引块
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">先调用 data_blocks 得到需要多少数据块
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">据数据块data blocks数目所处的区间统计索引块即可
+                    </td>
+                    </tr>
+                    </table>
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn blocks_num_needed(&self, new_size: u32) -> u32 {
+                    <table style="border-width: 2pt; font-size: 4pt;">
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">blocks_num_needed 可以计算将一个 DiskInode 的 size 扩容到 new_size 需要额外多少个数据和索引块
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这只需要调用两次 total_blocks 作差即可
+                    </td>
+                    </tr>
+                    </table>
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn clear_size(&mut self, block_device: &Arc<dyn BlockDevice>) -> Vec<u32>;
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">清空文件的内容并回收所有数据和索引块
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将回收的所有块的编号保存在一个向量中返回给磁盘块管理器
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">实现原理和 increase_size 一样也分为多个阶段
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn read_at(&self,offset: usize,buf: &mut [u8],block_device: &Arc<dyn BlockDevice>,) -> usize {
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将文件内容从 offset 字节开始的部分读到内存中的缓冲区 buf 中，
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">并返回实际读到的字节数。
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果文件剩下的内容还足够多，那么缓冲区会被填满；
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">不然的话文件剩下的全部内容都会被读到缓冲区中。
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">大致的思路是遍历位于字节区间 start,end 中间的那些块，将它们视为一个 DataBlock （也就是一个字节数组），
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">并将其中的部分内容复制到缓冲区 buf 中适当的区域。 
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">start_block 维护着目前是文件内部第多少个数据块，
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">首先调用 get_block_id 从索引中查到这个数据块在块设备中的块编号
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">随后才能传入 get_block_cache 中将正确的数据块缓存到内存中进行访问
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">简单的边界条件判断，
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果要读取的内容超出了文件的范围那么直接返回 0 
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">表示读取不到任何内容
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">write_at 的实现思路基本上和 read_at 完全相
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">不同的是 write_at 不会出现失败的情况，传入的整个缓冲区的数据都必定会被写入到文件中。
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当从 offset 开始的区间超出了文件范围的时候，就需要调用者在调用 write_at 之前提前调用 increase_size 将文件大小扩充到区间的右端保证写入的完整性
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">目录项
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件而言，它的内容在文件系统或内核看来没有任何既定的格式，只是一个字节序列
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">目录的内容却需要遵从一种特殊的格式，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">它可以看成一个目录项的序列，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">每个目录项都是一个二元组，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">包括目录下文件的文件名和索引节点编号
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">#[repr(C)]
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub struct DirEntry {
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">name: [u8; NAME_LENGTH_LIMIT + 1],
+                </td>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">const NAME_LENGTH_LIMIT: usize = 27;
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">保存的文件名长度不能超过 27
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">inode_number: u32,
+                </td>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">目录项自身长 32 字节，
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub const DIRENT_SZ: usize = 32;
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">每个数据块可以存储 16 个目录项， 512/32 = 16
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">impl DirEntry {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn empty() -> Self;
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">生成目录项
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn new(name: &str, inode_number: u32) -> Self;
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">...
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn name(&self) -> &str;
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">取出目录项中的内容
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn inode_number(&self) -> u32
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">...
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">从目录中读取目录项，或将目录项写入目录时，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">需要将目录项转化为缓冲区（即字节切片）的形式来符合 read_at OR write_at 接口的要求：
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn as_bytes(&self) -> &[u8] {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">unsafe {
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">core::slice::from_raw_parts(
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">self as *const _ as usize as *const u8,
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">DIRENT_SZ,
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">)
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn as_bytes_mut(&mut self) -> &mut [u8] {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">unsafe {
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">core::slice::from_raw_parts_mut(
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">self as *mut _ as usize as *mut u8,
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">DIRENT_SZ,
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">)
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">磁盘块管理器
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">efs.rs
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub struct EasyFileSystem {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub block_device: Arc<dyn BlockDevice>,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">还要在其中保留块设备的一个指针 block_device
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进行后续操作的时候，该指针会被拷贝并传递给下层的数据结构
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">让它们也能够直接访问块设备
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub inode_bitmap: Bitmap,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">索引节点bitmap
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub data_bitmap: Bitmap,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">数据块bitmap
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">inode_area_start_block: u32,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">索引节点区域和
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">data_area_start_block: u32,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">数据块区域起始块编号
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn create(block_device: Arc<dyn BlockDevice>, total_blocks: u32,inode_bitmap_blocks: u32,) -> Arc<Mutex<Self>> {
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">根据传入的参数计算每个区域各应该包含多少块。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">根据 inode 位图的大小计算 inode 区域至少需要多少个块才能够使得 inode 位图中的每个bit都能够有一个实际的 inode 可以对应
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这样就确定了 inode 位图区域bitmap和 inode 区域的大小
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">剩下的块都分配给数据块位图区域和数据块区域。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">希望数据块位图bitmap中的每个bit仍然能够对应到一个数据块，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">但是数据块位图bitmap又不能过小，不然会造成某些数据块永远不会被使用。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">因此数据data块位图bitmap区域最合理的大小是剩余的块数除以 4097 再上取整，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">因为位图bitmap中的每个块能够对应 512*84096 个数据块。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">其余的块就都作为数据块使用。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">创建我们的 EasyFileSystem 实例 efs
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">首先将块设备的前 total_blocks 个块清零，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">因为我们的 easy-fs 要用到它们，这也是为初始化做准备。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">位于块设备编号为 0 块上的超级块进行初始化，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">只需传入之前计算得到的每个区域的块数就行了。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">创建根目录 /
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">首先需要调用 alloc_inode 在 inode 位图bitmap中分配一个 inode ，由于这是第一次分配，它的编号固定是 0 。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">接下来需要将分配到的inode初始化为 easy-fs 中的唯一一个目录，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">我们需要调用 get_disk_inode_pos 来根据 inode 编号获取该 inode 所在的块block的编号以及块内偏移offset，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">之后就可以将它们传给 get_block_cache 和 modify 了。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;"> pub fn open(block_device: Arc<dyn BlockDevice>) -> Arc<Mutex<Self>> {
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">从一个已写入了 easy-fs 镜像的块设备上打开我们的 easy-fs
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">只需将块设备编号为 0 的块作为超级块读取进来
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">可以从中知道 easy-fs 的磁盘布局
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">由此可以构造 efs 实例
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn get_disk_inode_pos(&self, inode_id: u32) -> (u32, usize) {
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn get_data_block_id(&self, data_block_id: u32) -> u32 {
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">EasyFileSystem 知道整个磁盘布局
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">可以从 inode位图 或数据块位图上分配的 bit 编号
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">来算出各个存储inode和数据块的磁盘块在磁盘上的实际位置
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn alloc_inode(&mut self) -> u32 {
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn alloc_data(&mut self) -> u32 {
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn dealloc_data(&mut self, block_id: u32) {
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">alloc_data 和 dealloc_data 分配/回收数据块
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">传入/返回的参数都表示数据块在块设备block device上的编号，而不是在数据块位图bitmap中分配的bit编号；
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">索引节点
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">服务于文件相关系统调用的索引节点层的代码在 vfs.rs 中。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">EasyFileSystem 实现了我们设计的磁盘布局并能够将所有块有效的管理起来
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">但是对于文件系统的使用者而言，他们往往不关心磁盘布局是如何实现的，而是更希望能够直接看到目录树结构中逻辑上的文件和目录。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">设计索引节点 Inode 暴露给文件系统的使用者
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">让他们能够直接对文件和目录进行操作。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">Inode 和 DiskInode 的区别从它们的名字中就可以看出：
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">DiskInode 放在磁盘块中比较固定的位置，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">而 Inode 是放在内存中的记录文件索引节点信息的数据结构。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub struct Inode {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">block_id: usize,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">block_id 和 block_offset 记录该 Inode 对应的 DiskInode 保存在磁盘上的具体位置
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">方便我们后续对它进行访问
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">block_offset: usize,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fs: Arc<Mutex<EasyFileSystem>>,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fs 是指向 EasyFileSystem 的一个指针
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">因为对 Inode 的种种操作实际上都是要通过底层的文件系统来完成
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">block_device: Arc<dyn BlockDevice>,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">仿照 BlockCache::read/modify ，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">我们可以设计两个方法来简化对于 Inode 对应的磁盘上的 DiskInode 的访问流程，（虽然只是单纯封装了一下）
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">而不是每次都需要 get_block_cache.lock.read/modify ：
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fn read_disk_inode<V>(&self, f: impl FnOnce(&DiskInode) -> V) -> V {
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fn modify_disk_inode<V>(&self, f: impl FnOnce(&mut DiskInode) -> V) -> V {
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">常用操作
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">获取根目录的 inode
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件系统的使用者在通过 EasyFileSystem::open 从装载了 easy-fs 镜像的块设备block device上打开 easy-fs 之后
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">要做的第一件事情就是获取根目录的 Inode
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">因为我们目前仅支持绝对路径，对于任何文件/目录的索引都必须从根目录开始向下逐级进行。
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">等到索引完成之后，我们才能对文件/目录进行操作。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">事实上 EasyFileSystem 提供了另一个名为 root_inode 的方法来获取根目录的 Inode 
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;"> pub fn root_inode(efs: &Arc<Mutex<Self>>) -> Inode {
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">主要是在 Inode::new 的时候将传入的 inode_id 设置为 0
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">因为根目录对应于文件系统中第一个分配的 inode ，因此它的 inode_id 总会是 0
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">同时在设计上，我们不会在 Inode::new 中尝试获取整个 EasyFileSystem 的锁来查询 inode 在块设备中的位置
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">而是在调用它之前预先查询并作为参数传过去。
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件索引
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">尽可能简化我们的实现，所有的文件都在根目录下面。
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">不必实现目录索引
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件索引的查找比较简单，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">仅需在根目录的目录项中根据文件名找到文件的 inode 编号即可
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">由于没有子目录的存在，这个过程只会进行一次。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fn find_inode_id(&self,name: &str,disk_inode: &DiskInode,) -> Option<u32> {
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn find(&self, name: &str) -> Option<Arc<Inode>> {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">只会被根目录 Inode 调用
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">首先调用 find_inode_id 方法尝试从根目录的 DiskInode 上找到要索引的文件名对应的 inode 编号
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">需要将根目录内容中的所有目录项都读到内存进行逐个比对
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果能够找到的话， find 方法会根据查到 inode 编号对应生成一个 Inode 用于后续对文件的访问。
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">包括 find 在内所有暴露给文件系统的使用者的文件系统操作（还包括接下来将要介绍的几种），全程均需持有 EasyFileSystem 的互斥锁（相对的，文件系统内部的操作如之前的 Inode::new 或是上面的 find_inode_id 都是假定在已持有 efs 锁的情况下才被调用的，因此它们不应尝试获取锁）。
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这能够保证在多核情况下，同时最多只能有一个核在进行文件系统相关操作。
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这样也许会带来一些不必要的性能损失，但我们目前暂时先这样做。
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果我们在这里加锁的话，其实就能够保证块缓存的互斥访问了。
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件列举
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn ls(&self) -> Vec<String> {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">收集根目录下的所有文件的文件名并以向量的形式返回，这个方法只有根目录的 Inode 才会调用：
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件创建
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn create(&self, name: &str) -> Option<Arc<Inode>> {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">create 方法可以在根目录下创建一个文件，该方法只有根目录的 Inode 会调用：
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">检查文件是否已经在根目录下，如果找到的话返回 None ；
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">为待创建文件分配一个新的 inode 并进行初始化；
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将待创建文件的目录项插入到根目录的内容中使得之后可以索引过来。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件清空
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn clear(&self) {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在以某些标志位打开文件（例如带有 CREATE 标志打开一个已经存在的文件）的时候
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">需要首先将文件清空
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">索引到文件的 Inode 之后调用 clear 方法
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将之前该文件占据的索引块和数据块在 EasyFileSystem 中回收
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件读写
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">从根目录索引到一个文件之后可以对它进行读写
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">和 DiskInode 一样，这里的读写作用在字节序列的一段区间上
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn read_at(&self, offset: usize, buf: &mut [u8]) -> usize {
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn write_at(&self, offset: usize, buf: &[u8]) -> usize {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在 DiskInode::write_at 之前先调用 increase_size 对自身进行扩容
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fn increase_size(&self,new_size: u32,disk_inode: &mut DiskInode,fs: &mut MutexGuard<EasyFileSystem>,) {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">从 EasyFileSystem 中分配一些用于扩容的数据块并传给 DiskInode::increase_size
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将应用打包为 easy-fs 镜像
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将所有的应用都链接到内核中
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">随后在应用管理器中通过应用名进行索引来找到应用的 ELF 数据
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">有一个缺点，就是会造成内核体积过度膨胀
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">同时这也会浪费内存资源，因为未被执行的应用也占据了内存空间
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">实现了我们自己的文件系统之后，终于可以将这些应用打包到 easy-fs 镜像中放到磁盘中
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">要执行应用的时候只需从文件系统中取出ELF 执行文件格式的应用 并加载到内存中执行即可
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">easy-fs-fuse 的主体 easy-fs-pack 函数就实现了这个功能：
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fn easy_fs_pack() -> std::io::Result<()> {
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">为了实现 easy-fs-fuse 和 os/user 的解耦，使用 clap crate 进行命令行参数解析，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">需要通过 -s 和 -t 分别指定应用的源代码目录和保存应用 ELF 的目录而不是在 easy-fs-fuse 中硬编码。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果解析成功的话它们会分别被保存在变量 src_path 和 target_path 中。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">创建 4MiB 的 easy-fs 镜像文件、进行 easy-fs 初始化、获取根目录 inode 。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">获取源码目录中的每个应用的源代码文件并去掉后缀名，收集到向量 apps 中。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">枚举 apps 中的每个应用，从放置应用执行程序的目录中找到对应应用的 ELF 文件（这是一个 HostOS 上的文件）并将数据读入内存。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">接着需要在我们的 easy-fs 中创建一个同名文件并将 ELF 数据写入到这个文件中。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这个过程相当于将 HostOS 上的文件系统中的一个文件复制到我们的 easy-fs 中。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">easy-fs-fuse 不用担心块缓存中的修改没有写回磁盘，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">因为在 easy-fs 操作过程中实现了block_cache_sync_all 函数用以写回每次操作的结果。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">内核中使用 easy-fs
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">块设备驱动层
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">drivers 子模块中的 block/mod.rs 中
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">找到内核访问的块设备实例 BLOCK_DEVICE ：
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub static ref BLOCK_DEVICE: Arc<dyn BlockDevice> = Arc::new(BlockDeviceImpl::new());
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">qemu 上，我们使用 VirtIOBlock 访问 VirtIO 块设备
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将它全局实例化为 BLOCK_DEVICE
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">使内核的其他模块可以访问。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">启动 Qemu 模拟器的时候，我们可以配置参数来添加一块 VirtIO 块设备：
+              </td>
+              </tr>
+              </table>
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1# os/Makefile
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3FS_IMG := ../user/target/$(TARGET)/$(MODE)/fs.img
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5run: build
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">6    @qemu-system-riscv64 \
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">7        -machine virt \
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">8        -nographic \
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">9        -bios $(BOOTLOADER) \
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">10        -device loader,file=$(KERNEL_BIN),addr=$(KERNEL_ENTRY_PA) \
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: bold;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">11        -drive file=$(FS_IMG),if=none,format=raw,id=x0 \
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">为虚拟机添加一块虚拟硬盘，
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">内容为我们之前通过 easy-fs-fuse 工具打包的包含应用 ELF 的 easy-fs 镜像，并命名为 x0
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: bold;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">12        -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将硬盘 x0 作为一个 VirtIO 总线中的一个块设备接入到虚拟机系统中。 
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">virtio-mmio-bus.0 表示 VirtIO 总线通过 MMIO 进行控制，且该块设备在总线中的编号为 0 
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">内存映射 I/O (MMIO, Memory-Mapped I/O) 
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">指通过特定的物理内存地址来访问外设的设备寄存器。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">VirtIO 总线的 MMIO 物理地址区间为从 0x10001000 开头的 4KiB
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">config 子模块中我们硬编码 Qemu 上的 VirtIO 总线的 MMIO 地址区间（起始地址，长度）
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">创建内核地址空间的时候需要建立页表映射：
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进行的是透明的恒等映射
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">让内核可以兼容于直接访问物理地址的设备驱动库
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">由于设备驱动的开发过程比较琐碎，我们这里直接使用已有的 virtio-drivers crate
+                </td>
+                </tr>
+                </table>
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub const MMIO: &[(usize, usize)] = &[
+                    <table style="border-width: 2pt; font-size: 4pt;">
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">(0x10001000, 0x1000),
+                    </td>
+                    </tr>
+                    </table>
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">];
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">impl MemorySet {
+                    <table style="border-width: 2pt; font-size: 4pt;">
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">/// Without kernel stacks.
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn new_kernel() -> Self {
+                      <table style="border-width: 2pt; font-size: 3pt;">
+                      <tr>
+                      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">...
+                      </td>
+                      </tr>
+                      <tr>
+                      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">println!("mapping memory-mapped registers");
+                      </td>
+                      </tr>
+                      <tr>
+                      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">for pair in MMIO {
+                        <table style="border-width: 2pt; font-size: 2pt;">
+                        <tr>
+                        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">memory_set.push(MapArea::new(
+                          <table style="border-width: 2pt; font-size: 1pt;">
+                          <tr>
+                          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">(*pair).0.into(),
+                          </td>
+                          </tr>
+                          <tr>
+                          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">((*pair).0 + (*pair).1).into(),
+                          </td>
+                          </tr>
+                          <tr>
+                          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">MapType::Identical,
+                          </td>
+                          </tr>
+                          <tr>
+                          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">MapPermission::R | MapPermission::W,
+                          </td>
+                          </tr>
+                          </table>
+                        </td>
+                        </tr>
+                        <tr>
+                        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">), None);
+                        </td>
+                        </tr>
+                        </table>
+                      </td>
+                      </tr>
+                      <tr>
+                      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+                      </td>
+                      </tr>
+                      <tr>
+                      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">memory_set
+                      </td>
+                      </tr>
+                      </table>
+                    </td>
+                    </tr>
+                    <tr>
+                    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+                    </td>
+                    </tr>
+                    </table>
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">内核索引节点层
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">内核将 easy-fs 提供的 Inode 进一步封装为 OS 中的索引节点 OSInode
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub struct OSInode {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">readable: bool,
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">writable: bool,
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">inner: UPSafeCell<OSInodeInner>,
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+            </td>
+            </tr>
+            </table>
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">OSInode 就表示进程中一个被打开的常规文件或目录。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">readable/writable 分别表明该文件是否允许通过 sys_read/write 进行读写
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">读写过程中的偏移量 offset 和 Inode 则加上互斥锁丢到 OSInodeInner 中
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub struct OSInodeInner {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">offset: usize,
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">inode: Arc<Inode>,
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+            </td>
+            </tr>
+            </table>
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件描述符层
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">OSInode 也是要一种要放到进程文件描述符表中，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">通过 sys_read/write 进行读写的文件，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">需要为它实现 File Trait ：
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">impl File for OSInode {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">read/write 的实现也比较简单，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">只需遍历 UserBuffer 中的每个缓冲区片段，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">调用 Inode 写好的 read/write_at 接口就好了。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">注意 read/write_at 的起始位置是在 OSInode 中维护的 offset ，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这个 offset 也随着遍历的进行被持续更新。
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在 read/write 的全程需要获取 OSInode 的互斥锁，保证两个进程无法同时访问同个文件。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">File Trait 新增了 readable/writable 两个抽象接口
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在 sys_read/sys_write 的时候进行简单的访问权限检查
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件系统相关内核机制实现
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">文件系统初始化
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub static ref ROOT_INODE: Arc<Inode> = {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">lazy_static! {
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub static ref ROOT_INODE: Arc<Inode> = {
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">let efs = EasyFileSystem::open(BLOCK_DEVICE.clone());
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">Arc::new(EasyFileSystem::root_inode(&efs))
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">};
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这之后就可以使用根目录的 inode ROOT_INODE
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在内核中调用 easy-fs 的相关接口
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn list_apps() {
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">打印所有可用应用的文件名
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn read_write(&self) -> (bool, bool) {
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">read_write 方法可以根据标志的情况返回要打开的文件是否允许读写
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">简单起见，这里假设标志自身一定合法。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn open_file(name: &str, flags: OpenFlags) -> Option<Arc<OSInode>> {
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">根据文件名打开一个根目录下的文件
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">主要是实现了 OpenFlags 各标志位的语义
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">例如只有 flags 参数包含 CREATE 标志位才允许创建文件；
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">而如果文件已经存在，则清空文件的内容
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_exec(path: *const u8, mut args: *const usize) -> isize {
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当执行获取应用的 ELF 数据的操作时，首先调用 open_file 函数，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">以只读的方式在内核中打开应用文件并获取它对应的 OSInode
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">接下来可以通过 OSInode::read_all 将该文件的数据全部读到一个向量 all_data 中：
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">之后，就可以从向量 all_data 中拿到应用中的 ELF 数据，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当解析完毕并创建完应用地址空间后该向量将会被回收。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">lazy_static! {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub static ref INITPROC: Arc<TaskControlBlock> = Arc::new({
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">let inode = open_file("ch6b_initproc", OpenFlags::RDONLY).unwrap();
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">let v = inode.read_all();
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">TaskControlBlock::new(v.as_slice())
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">});
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+            </td>
+            </tr>
+            </table>
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">内核中创建初始进程 initproc 也需要替换为基于文件系统的实现
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    </table>
+  </td>
+  </tr>
+  </table>
+</td>
+</tr>
+</table>
+
+</body>
+</html>

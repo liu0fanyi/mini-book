@@ -1,0 +1,1453 @@
+<html>
+<head>
+<style>
+table {
+border-collapse: collapse;
+margin-left: 0;          /* 强制左对齐 */
+width: auto;             /* 宽度自适应内容 */
+}
+table, th, td {
+border: 1px solid black;
+text-align: left;        /* 文本左对齐 */
+padding: 4px 8px;       /* 添加内边距 */
+}
+</style>
+</head>
+<body>
+<table style="border-width: 2pt; font-size: 14pt;">
+<tr>
+<td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+  <table style="border-width: 2pt; font-size: 13pt;">
+  <tr>
+  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+    <table style="border-width: 2pt; font-size: 12pt;">
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进程间通信
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">branch ch7
+    </td>
+    </tr>
+    </table>
+  </td>
+  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+    <table style="border-width: 2pt; font-size: 12pt;">
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">sys_pipe
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_pipe(pipe: *mut usize) -> isize;
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">功能：为当前进程打开一个管道。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">参数：pipe 表示应用地址空间中的一个长度为 2 的 usize 数组的起始地址，内核需要按顺序将管道读端和写端的文件描述符写入到数组中。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">返回值：如果出现了错误则返回 -1，否则返回 0 。可能的错误原因是：传入的地址不合法。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">syscall ID：59
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">用户库会将其包装为 pipe 函数：
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn pipe(pipe_fd: &mut [usize]) -> isize { sys_pipe(pipe_fd) }
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当一个管道的所有读端文件/写端文件都被关闭之后，管道占用的资源才会被回收。
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_close(fd: usize) -> isize;
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">只需将进程控制块中的文件描述符表对应的一项改为 None 代表它已经空闲即可
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">同时这也会导致内层的引用计数类型 Arc 被销毁
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">会减少一个文件的引用计数，当引用计数减少到 0 之后，文件所占用的资源就会被自动回收。
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">会在用户库中被包装为 close 函数。
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">close=_=
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">管道使用ch7b_pipetest
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">父进程中，我们通过 pipe 打开一个管道文件数组，
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">其中 pipe_fd[0] 保存了管道读端的文件描述符，而 pipe_fd[1] 保存了管道写端的文件描述符。
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在 fork 之后，子进程会完全继承父进程的文件描述符表，
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">于是子进程也可以通过同样的文件描述符来访问同一个管道的读端和写端。
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">管道是单向的，
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这个测例中我们希望管道中的数据从父进程流向子进程
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">即父进程仅通过管道的写端写入数据，而子进程仅通过管道的读端读取数据。
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果想在父子进程之间实现双向通信，我们就必须创建两个管道。
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">ch7b_pipe_large_test
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">基于文件的管道
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将管道的一端（读端或写端）抽象为 Pipe 类型
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub struct Pipe {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">readable: bool,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">readable 和 writable 分别指出该管道端可否支持读取/写入
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">writable: bool,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">buffer: Arc<Mutex<PipeRingBuffer>>,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">过 buffer 字段还可以找到该管道端所在的管道自身
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">后续我们将为它实现 File Trait ，之后它便可以通过文件描述符来访问
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">管道自身，带有一定大小缓冲区的字节队列，我们抽象为 PipeRingBuffer 类型：
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub struct PipeRingBuffer {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">arr: [u8; RING_BUFFER_SIZE],
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">arr/head/tail 三个字段用来维护一个循环队列，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">其中 arr 为存放数据的数组， 
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">head: usize,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">head 为循环队列队头的下标， 
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">tail: usize,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">tail 为循环队列队尾的下标。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">status: RingBufferStatus,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">RingBufferStatus 记录了缓冲区目前的状态：
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">FULL 表示缓冲区已满不能再继续写入； 
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">EMPTY 表示缓冲区为空无法从里面读取；
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">而 NORMAL 则表示除了 FULL 和 EMPTY 之外的其他状态。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">write_end: Option<Weak<Pipe>>,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">保存了它的写端的一个弱引用计数，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这是由于在某些情况下需要确认该管道所有的写端是否都已经被关闭了，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">通过这个字段很容易确认这一点
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">从内存管理的角度，每个读端或写端中都保存着所属管道自身的强引用计数，
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">我们确保这些引用计数只会出现在管道端口 Pipe 结构体中
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">于是，一旦一个管道所有的读端和写端均被关闭，便会导致它们所属管道的引用计数变为 0 
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">循环队列缓冲区所占用的资源被自动回收
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">虽然 PipeRingBuffer 中保存了一个指向写端的引用计数，但是它是一个弱引用，也就不会出现循环引用的情况导致内存泄露
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">管道创建
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">通过 PipeRingBuffer::new 可以创建一个新的管道：
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">Pipe 的 read/write_end_with_buffer 方法可以分别从一个已有的管道创建它的读端和写端：
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">impl Pipe {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn read_end_with_buffer(buffer: Arc<Mutex<PipeRingBuffer>>) -> Self {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">Self {
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">readable: true,
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">writable: false,
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">buffer,
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn write_end_with_buffer(buffer: Arc<Mutex<PipeRingBuffer>>) -> Self {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">Self {
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">readable: false,
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">writable: true,
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">buffer,
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+            </td>
+            </tr>
+            </table>
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">读端和写端的访问权限进行了相应设置
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">不允许向读端写入，也不允许从写端读取
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn make_pipe() -> (Arc<Pipe>, Arc<Pipe>) {
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">创建一个管道并返回它的读端和写端
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">调用 PipeRingBuffer::set_write_end 在管道中保留它的写端的弱引用计数。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">系统调用 sys_pipe ：
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn alloc_fd(&mut self) -> usize {
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">可以在进程控制块中分配一个最小的空闲文件描述符来访问一个新打开的文件。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">它先从小到大遍历所有曾经被分配过的文件描述符尝试找到一个空闲的，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果没有的话就需要拓展文件描述符表的长度并新分配一个。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_pipe(pipe: *mut usize) -> isize {
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">调用 make_pipe 创建一个管道并获取其读端和写端
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">我们分别为读端和写端分配文件描述符并将它们放置在文件描述符表中的相应位置中。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">我们则是将读端和写端的文件描述符写回到应用地址空间。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">管道读写
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">impl PipeRingBuffer {
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn read_byte(&mut self) -> u8 {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">可以从管道中读取一个字节
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在调用它之前需要确保管道缓冲区中不是空的
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">更新循环队列队头的位置
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">比较队头和队尾是否相同
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果相同的话则说明管道的状态变为空 EMPTY
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">仅仅通过比较队头和队尾是否相同不能确定循环队列是否为空
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">它既有可能表示队列为空，也有可能表示队列已满
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">因此我们需要在 read_byte 的同时进行状态更新
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn available_read(&self) -> usize {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">计算管道中还有多少个字符可以读取
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">首先需要需要判断队列是否为空
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">队头和队尾相等可能表示队列为空或队列已满
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果队列为空的话直接返回 0，否则根据队头和队尾的相对位置进行计算
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn all_write_ends_closed(&self) -> bool {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">判断管道的所有写端是否都被关闭了
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">通过尝试将管道中保存的写端的弱引用计数升级为强引用计数来实现的
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">升级失败的话，说明管道写端的强引用计数为 0 ，也就意味着管道所有写端都被关闭了
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">从而管道中的数据不会再得到补充
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">待管道中仅剩的数据被读取完毕之后，管道就可以被销毁了
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fn read(&self, buf: UserBuffer) -> usize {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">buf_iter 将传入的应用缓冲区 buf 转化为一个能够逐字节对于缓冲区进行访问的迭代器
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">每次调用 buf_iter.next() 即可按顺序取出用于访问缓冲区中一个字节的裸指针
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">read_size 用来维护实际有多少字节从管道读入应用的缓冲区
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">File::read 的语义是要从文件中最多读取应用缓冲区大小那么多字符。
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这可能超出了循环队列的大小，或者由于尚未有进程从管道的写端写入足够的字符，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">因此我们需要将整个读取的过程放在一个循环中，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当循环队列中不存在足够字符的时候暂时进行任务切换，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">等待循环队列中的字符得到补充之后再继续读取。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">用 loop_read 来保存循环这一轮次中可以从管道循环队列中读取多少字符。
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果管道为空则会检查管道的所有写端是否都已经被关闭，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果是的话，说明我们已经没有任何字符可以读取了，这时可以直接返回；
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">否则我们需要等管道的字符得到填充之后再继续读取，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">因此我们调用 suspend_current_and_run_next 切换到其他任务，等到切换回来之后回到循环开头再看一下管道中是否有字符了。
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在调用之前我们需要手动释放管道自身的锁，因为切换任务时候的 __switch 并不是一个正常的函数调用。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果 loop_read 不为 0
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在这一轮次中管道中就有 loop_read 个字节可以读取
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">可以迭代应用缓冲区中的每个字节指针并调用 PipeRingBuffer::read_byte 方法来从管道中进行读取
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果这 loop_read 个字节均被读取之后还没有填满应用缓冲区就需要进入循环的下一个轮次
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">否则就可以直接返回了。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">Pipe 的 write 方法与read类似
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">命令行参数
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn exec(path: &str, args: &[*const u8]) -> isize { sys_exec(path, args) }
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_exec(path: &str, args: &[*const u8]) -> isize;
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">syscall(SYSCALL_EXEC, [path.as_ptr() as usize, args.as_ptr() as usize, 0])
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">参数多出了一个 args 数组
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">数组中的每个元素都是命令行参数字符串的起始地址
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">实际传递给内核的实际上是这个数组的起始地址
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">shell程序的命令行参数分割
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">user/src/bin/ch6b_user_shell.rs
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">shell程序 user_shell 中，一旦接收到一个回车，我们就会将当前行的内容 line 作为一个名字并试图去执行同名的应用
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">现在 line 还可能包含一些命令行参数，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">只有最开头的一个才是要执行的应用名
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">第一件事情就是将 line 用空格分割
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">经过分割， args 中的 &str 都是 line 中的一段子区间，它们的结尾并没有包含 \0 ，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">因为 line 是我们输入得到的，中间本来就没有 \0 。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">由于在向内核传入字符串的时候，我们只能传入字符串的起始地址，因此我们必须保证其结尾为 \0 。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">从而我们用 args_copy 将 args 中的字符串拷贝一份到堆上并在末尾手动加入 \0 。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这样就可以安心的将 args_copy 中的字符串传入内核了。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">我们用 args_addr 来收集这些字符串的起始地址：
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">let mut args_addr: Vec<*const u8> = args_copy
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">.iter()
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">.map(|arg| arg.as_ptr())
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">.collect();
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">args_addr.push(0 as *const u8);
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">向量 args_addr 中的每个元素都代表一个命令行参数字符串的起始地址。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">为了让内核能够获取到命令行参数的个数，我们在 args_addr 的末尾放入一个 0 ，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这样内核看到它时就能知道命令行参数已经获取完毕了。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在 fork 出来的子进程中，我们调用 exec 传入命令行参数。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">sys_exec 将命令行参数压入用户栈
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">首先需要将应用传进来的命令行参数取出来
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">每次我们都可以从一个起始地址通过 translated_str 拿到一个字符串
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">直到 args 为 0 就说明没有更多命令行参数了。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">调用 TaskControlBlock::exec 的时候
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn exec(&self, elf_data: &[u8], args: Vec<String>) {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">需要将获取到的 args_vec 传入进去并将里面的字符串压入到用户栈app stack上。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">具体的格式
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;"><img src="data:image/png;base64,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" />
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">首先需要在用户栈上分配一个字符串指针数组，也就是蓝色区域。
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">数组中的每个元素都指向一个用户栈更低处的命令行参数字符串的起始地址。
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">最开始我们只是分配空间，具体的值要等到字符串被放到用户栈上之后才能确定更新
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">逐个将传入的 args 中的字符串压入到用户栈中，对应于图中的橙色区域。
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">为了实现方便，我们在用户栈上预留空间之后逐字节进行复制。
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">注意 args 中的字符串是通过 translated_str 从应用地址空间取出的，它的末尾不包含 \0 。
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">了应用能知道每个字符串的长度，我们需要手动在末尾加入 \0 
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                  <table style="border-width: 2pt; font-size: 5pt;">
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将 user_sp 以 8 字节对齐
+                  </td>
+                  </tr>
+                  <tr>
+                  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在 Qemu 平台上其实可以忽略这一步
+                  </td>
+                  </tr>
+                  </table>
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">还需要对应修改 TrapContext
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">我们的 user_sp 相比之前已经发生了变化，
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">它上面已经压入了命令行参数。
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">同时，我们还需要修改 TrapContext中的 a0/a1 寄存器
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">让 a0 表示命令行参数的个数
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">而 a1 则表示图中 argv_base 即蓝色区域的起始地址
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这两个参数在第一次进入对应应用的用户态的时候
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">会被接收并用于还原命令行参数
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">用户库从app stack上还原命令行参数
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub extern "C" fn _start(argc: usize, argv: usize) -> ! {
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">应用第一次进入用户态的时候
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">放在 TrapContext 的a0/a1 两个寄存器中的内容可以被用户库中的入口函数以参数的形式接收
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在入口 _start 中我们就接收到了命令行参数个数 argc 和字符串数组的起始地址 argv
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">但是这个起始地址不太好用
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">望能够将其转化为编写应用的时候看到的 &[&str] 的形式
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">分别取出 argc 个字符串的起始地址（基于字符串数组的 base 地址 argv ），
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">从它向后找到第一个 \0 就可以得到一个完整的 &str 格式的命令行参数字符串并加入到向量 v 中。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">最后通过 v.as_slice 就得到了我们在 main 主函数中看到的 &[&str] 。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">标准输入输出重定向
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">增强 shell 程序使用文件系统时的灵活性
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">新增标准输入输出重定向功能
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">对于应用来说是透明
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">应用中除非明确指出了数据要从指定的文件输入或者输出到指定的文件
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">数据默认都是输入自进程文件描述表位置 0 处的标准输入stdin
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">并输出到进程文件描述符表位置 1 处的标准输出stdout
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_dup(fd: usize) -> isize;
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">功能：将进程中一个已经打开的文件复制一份并分配到一个新的文件描述符中。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">参数：fd 表示进程中一个已经打开的文件的文件描述符。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">返回值：如果出现了错误则返回 -1，否则能够访问已打开文件的新文件描述符。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">可能的错误原因是：传入的 fd 并不对应一个合法的已打开文件。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">syscall ID：24
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">首先检查传入 fd 的合法性。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在文件描述符表中分配一个新的文件描述符，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">并保存 fd 指向的已打开文件的一份拷贝即可
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在shell程序 user_shell 分割命令行参数的时候
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">要检查是否存在通过 < 或 > 进行输入输出重定向的情况
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果存在的话则需要将它们从命令行参数中移除
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">并记录匹配到的输入文件名或输出文件名到字符串 input 或 output 中
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">为了实现方便，我们这里假设输入shell程序的命令一定合法
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">即 < 或 > 最多只会出现一次
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">后面总是会有一个参数作为重定向到的文件
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">let mut input = String::new();
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">if let Some((idx, _)) = args_copy
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">.iter()
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">.enumerate()
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">.find(|(_, arg)| arg.as_str() == "<\0") {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">input = args_copy[idx + 1].clone();
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">args_copy.drain(idx..=idx + 1);
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">// redirect output
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">let mut output = String::new();
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">if let Some((idx, _)) = args_copy
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">.iter()
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">.enumerate()
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">.find(|(_, arg)| arg.as_str() == ">\0") {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">output = args_copy[idx + 1].clone();
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">args_copy.drain(idx..=idx + 1);
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">}
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">打开文件和替换的过程则发生在 fork 之后的子进程分支中：
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">// user/src/bin/user_shell.rs
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">输入重定向
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">尝试打开输入文件 input 到 input_fd 中
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">首先通过 close 关闭标准输入所在的文件描述符 0 
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">之后通过 dup 来分配一个新的文件描述符来访问 input_fd 对应的输入文件。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这里用到了文件描述符分配的重要性质：
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">即必定分配可用描述符中编号最小的一个。
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">由于我们刚刚关闭了描述符 0 ，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">那么在 dup 的时候一定会将它分配出去，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">于是现在应用进程的文件描述符 0 就对应到输入文件了。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">最后，因为应用进程的后续执行不会用到输入文件原来的描述符 input_fd ，所以就将其关掉。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">输出重定向
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">原理和输入重定向几乎完全一致
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">只是通过 open 打开文件的标志不太相同
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    </table>
+  </td>
+  </tr>
+  </table>
+</td>
+</tr>
+</table>
+
+</body>
+</html>

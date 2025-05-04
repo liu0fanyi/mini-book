@@ -1,0 +1,5073 @@
+<html>
+<head>
+<style>
+table {
+border-collapse: collapse;
+margin-left: 0;          /* 强制左对齐 */
+width: auto;             /* 宽度自适应内容 */
+}
+table, th, td {
+border: 1px solid black;
+text-align: left;        /* 文本左对齐 */
+padding: 4px 8px;       /* 添加内边距 */
+}
+</style>
+</head>
+<body>
+<table style="border-width: 2pt; font-size: 14pt;">
+<tr>
+<td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+  <table style="border-width: 2pt; font-size: 13pt;">
+  <tr>
+  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+    <table style="border-width: 2pt; font-size: 12pt;">
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">并发
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">branch ch8
+    </td>
+    </tr>
+    </table>
+  </td>
+  <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+    <table style="border-width: 2pt; font-size: 12pt;">
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">到目前为止的并发，仅仅是进程间的并发， 
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">对于一个进程内部还没有并发性的体现。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">而这就是线程（Thread）出现的起因：
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">提高一个进程内的并发性。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">对于很多应用（以单一进程的形式运行）而言， 
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">逻辑上存在多个可并行执行的任务，
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果其中一个任务被阻塞，
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将会引起不依赖该任务的其他任务也被阻塞。
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">具体的例子，我们平常用编辑器来编辑文本内容的时候，都会有一个定时自动保存的功能， 
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这个功能的作用是在系统或应用本身出现故障的情况前，已有的文档内容会被提前保存。 
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">假设编辑器自动保存时由于磁盘性能导致写入较慢，导致整个进程被操作系统挂起，这就会影响到用户编辑文档的人机交互体验： 
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">即软件的及时响应能力不足，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">用户只有等到磁盘写入完成后，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">操作系统重新调度该进程运行后，用户才可编辑。 
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果我们把一个进程内的多个可并行执行任务通过一种更细粒度的方式让操作系统进行调度， 
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">那么就可以通过处理器时间片切换实现这种细粒度的并发执行。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这种细粒度的调度对象就是线程。
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程定义
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程是进程的组成部分
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进程可包含1 – n个线程
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">属于同一个进程的线程共享进程的资源
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">比如地址空间、打开的文件等
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">基本的线程由线程ID、执行状态、当前指令指针 (PC)、寄存器集合和栈组成。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程是可以被操作系统或用户态调度器独立调度（Scheduling）和分派（Dispatch）的基本单位
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">本章之前，进程是程序的基本执行实体
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">是程序关于某数据集合上的一次运行活动
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">是系统进行资源（处理器、 地址空间和文件等）分配和调度的基本单位
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">有了线程后，对进程的定义也要调整了，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进程是线程的资源容器， 
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程成为了程序的基本执行实体。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">同步互斥
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当多个线程共享同一进程的地址空间时
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">每个线程都可以访问属于这个进程的数据（全局变量）。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果每个线程使用到的变量都是其他线程不会读取或者修改的话， 那么就不存在一致性问题。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果变量是只读的，多个线程读取该变量也不会有一致性问题。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">但是，当一个线程修改变量时， 其他线程在读取这个变量时，可能会看到一个不一致的值，
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这就是数据不一致性的问题。
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">并发术语
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">共享资源（shared resource）：
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">不同的线程/进程都能访问的变量或数据结构。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">临界区（critical section）：
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">访问共享资源的一段代码。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">竞态条件（race condition）：
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">多个线程/进程都进入临界区时，都试图更新共享的数据结构，导致产生了不期望的结果。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">不确定性（indeterminate）： 
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">多个线程/进程在执行过程中出现了竞态条件，导致执行结果取决于哪些线程在何时运行， 即执行结果不确定，而开发者期望得到的是确定的结果。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">互斥（mutual exclusion）：
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">一种操作原语，能保证只有一个线程进入临界区，从而避免出现竞态，并产生确定的执行结果。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">原子性（atomic）：
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">一系列操作要么全部完成，要么一个都没执行，不会看到中间状态。在数据库领域， 具有原子性的一系列操作称为事务（transaction）。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">同步（synchronization）：
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">多个并发执行的进程/线程在一些关键点上需要互相等待，这种相互制约的等待称为进程/线程同步。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">死锁（dead lock）：
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">一个线程/进程集合里面的每个线程/进程都在等待只能由这个集合中的其他一个线程/进程 （包括他自身）才能引发的事件，这种情况就是死锁。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">饥饿（hungry）：
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">指一个可运行的线程/进程尽管能继续执行，但由于操作系统的调度而被无限期地忽视，导致不能执行的情况。
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">哲学家就餐
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">ch8b_phil_din_mutex
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">计算机科学家 Dijkstra 提出并解决的哲学家就餐问题是经典的进程同步互斥问题。哲学家就餐问题描述如下：
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">有5个哲学家共用一张圆桌，分别坐在周围的5张椅子上，在圆桌上有5个碗和5只筷子，他们的生活方式是交替地进行思考和进餐。 平时，每个哲学家进行思考，饥饿时便试图拿起其左右最靠近他的筷子，只有在他拿到两只筷子时才能进餐。进餐完毕，放下筷子继续思考。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程概念
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">结合与进程的比较来说明线程的概念
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">操作系统让进程拥有相互隔离的虚拟的地址空间address space
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进程感到在独占一个虚拟的处理器
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">只是操作系统通过时分复用和空分复用技术来让每个进程复用有限的物理内存和物理CPU。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程是在进程内中的一个新的抽象
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在没有线程之前，一个进程在一个时刻只有一个执行点（即程序计数器 (PC) 寄存器保存的要执行指令的指针）。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程的引入把进程内的这个单一执行点给扩展为多个执行点
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">即在进程中存在多个线程， 每个线程都有一个执行点。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">而且这些线程共享进程procee的地址空间address space
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">可以不必采用相对比较复杂的 IPC 机制（一般需要内核的介入）
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">可以很方便地直接访问进程内的数据
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程的具体运行过程中，需要有程序计数器寄存器来记录当前的执行位置
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">需要有一组通用寄存器记录当前的指令的操作数据
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">需要有一个栈来保存线程执行过程的函数调用栈和局部变量等，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">形成了线程上下文的主体部分。 
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这样如果两个线程运行在一个处理器上，就需要采用类似两个进程运行在一个处理器上的调度/切换管理机制， 
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">即需要在一定时刻进行线程切换
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">并进行线程上下文的保存与恢复
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这样在一个进程中的多线程可以独立运行， 
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">取代了进程，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">成为操作系统调度的基本单位
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">由于把进程的结构进行了细化，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">通过线程来表示对处理器的虚拟化，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">使得进程成为了管理线程的容器。 
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在进程中的线程没有父子关系，大家都是兄弟，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">但还是有个老大。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这个代表老大的线程其实就是创建进程（比如通过 fork 系统调用创建进程）时，建立的第一个线程，它的线程标识符（TID）为 0 。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程模型与重要系统调用
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">一种非常简单的线程模型
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">三个运行状态： 
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">就绪态、运行态和等待态
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">共享所属进程process的地址空间address space和其他共享资源（如文件等）
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">可被操作系统调度来分时占用CPU执行；
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">可以动态创建和退出；
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">可通过系统调用获得操作系统的服务。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">我们实现的线程模型建立在进程的地址空间抽象之上： 
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">每个线程都共享进程的代码段和和可共享的地址空间（如全局数据段、堆等），
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">但有自己的独占的栈
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程模型需要操作系统支持一些重要的系统调用：
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">创建线程、等待子线程结束等，支持灵活的多线程应用
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程创建系统调用
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">一个进程的运行过程中，进程可以创建多个属于这个进程的线程，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">每个线程有自己的线程标识符（TID，Thread Identifier）
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_thread_create(entry: usize, arg: usize) -> isize
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">功能：当前进程创建一个新的线程
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">参数：entry 表示线程的入口函数地址
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">参数：arg：表示线程的一个参数
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当进程调用 thread_create 系统调用后，内核会在这个进程内部创建一个新的线程，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这个线程能够访问到进程所拥有的代码段， 堆和其他数据段。
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">但内核会给这个新线程分配一个它专有的用户态栈，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这样每个线程才能相对独立地被调度和执行。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">另外，由于用户态进程与内核之间有各自独立的页表，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">所以二者需要有一个跳板页 TRAMPOLINE 来处理用户态切换到内核态的地址空间平滑转换的事务。
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">所以当出现线程后，在进程中的每个线程也需要有一个独立的跳板页 TRAMPOLINE 来完成同样的事务。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">相比于创建进程的 fork 系统调用，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">创建线程不需要要建立新的地址空间，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">另外属于同一进程中的线程之间没有父子关系
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">等待子线程系统调用
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_waittid(tid: usize) -> i32
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">/// 参数：tid表示线程id
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">/// 返回值：如果线程不存在，返回-1；如果线程还没退出，返回-2；其他情况下，返回结束线程的退出码
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当一个线程执行完代表它的功能后，会通过 exit 系统调用退出。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">内核在收到线程发出的 exit 系统调用后， 会回收线程占用的部分资源，即用户态用到的资源，
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">比如用户态的栈，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">用于系统调用和异常处理的跳板页等。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">而该线程的内核态用到的资源，比如内核栈等，需要通过进程/主线程调用 waittid 来回收了，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这样整个线程才能被彻底销毁。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">一般情况下进程/主线程要负责通过 waittid 来等待它创建出来的线程（不是主线程）
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">结束并回收它们在内核中的资源 （如线程的内核栈、线程控制块等）。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果进程/主线程先调用了 exit 系统调用来退出，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">那么整个进程 （包括所属的所有线程）都会退出，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">而对应父进程会通过 waitpid 回收子进程剩余还没被回收的资源。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进程相关的系统调用
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">引入了线程机制后，进程相关的重要系统调用： 
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fork 、 exec 、 waitpid 虽然在接口上没有变化， 
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">但在它要完成的功能上需要有一定的扩展。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">把以前进程中与处理器执行相关的部分拆分到线程中。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">通过 fork 创建进程其实也意味着要单独建立一个主线程来使用处理器，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">并为以后创建新的线程建立相应的线程控制块向量。 
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">相对而言， exec 和 waitpid 这两个系统调用要做的改动比较小，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">还是按照与之前进程的处理方式来进行。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">总体上看， 进程相关的这三个系统调用还是保持了已有的进程操作的语义，并没有由于引入了线程，而带来大的变化
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">应用程序示例
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">一个多线程应用程序 threads 的开发过程来展示这些系统调用的使用方法。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">系统调用封装
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在 user/src/syscall.rs 中看到以 sys_* 开头的系统调用的函数原型
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">后续还会在 user/src/lib.rs 中被封装成方便应用程序使用的形式
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如 sys_thread_create 被封装成 thread_create 
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">sys_waittid 被封装成 waittid
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">waittid 等待一个线程标识符的值为tid 的线程结束
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当 sys_waittid 返回值为 -2 ，即要等待的线程存在但它却尚未退出的时候
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">主线程调用 yield_ 主动交出 CPU 使用权
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">待下次 CPU 使用权被内核交还给它的时候再次调用 sys_waittid 查看要等待的线程是否退出
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">为了减小 CPU 资源的浪费。
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这种方法是为了尽可能简化内核的实现
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">多线程应用程序 – threads
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">多线程应用程序 – threads 开始执行后，先调用 thread_create 创建了三个线程
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">加上进程自带的主线程，其实一共有四个线程。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">每个线程在打印了1000个字符后，会执行 exit 退出。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进程通过 waittid 等待这三个线程结束后，最终结束进程的执行。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">//usr/src/bin/ch8b_threads.rs
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程管理的核心数据结构
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">还是TCB任务控制块 TaskControlBlock
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">表示线程的核心数据结构。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">任务管理器 TaskManager 
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">管理线程集合的核心数据结构。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">处理器管理结构 Processor 
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">用于线程调度，维护线程的处理器状态。
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程控制块TCB
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">内核对线程进行管理的核心数据结构
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在内核看来，它就等价于一个线程
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">主要包括在线程初始化之后就不再变化的元数据
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程所属的进程和线程的内核栈
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">以及在运行过程中可能发生变化的元数据
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1pub struct TaskControlBlock {
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2    // immutable
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3    pub process: Weak<ProcessControlBlock>,
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4    pub kernel_stack: KernelStack,
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5    // mutable
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">6    inner: UPSafeCell<TaskControlBlockInner>,
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">7}
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">8
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">9pub struct TaskControlBlockInner {
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">10    pub trap_cx_ppn: PhysPageNum,
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">11    pub task_cx: TaskContext,
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">12    pub task_status: TaskStatus,
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">13    pub exit_code: Option<i32>,
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: bold;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">14    pub res: Option<TaskUserRes>,
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: bold;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1pub struct TaskUserRes {
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: bold;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: bold;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2    pub tid: usize,
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">tid：线程标识符
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: bold;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: bold;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3    pub ustack_base: usize,
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">ustack_base：线程的栈顶地址
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: bold;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: bold;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4    pub process: Weak<ProcessControlBlock>,
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">process：线程所属的进程
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: bold;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5}
+            </td>
+            </tr>
+            </table>
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">用户态的线程代码执行需要的信息，这些在线程初始化之后就不再变化：
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">15}
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">包含线程的进程控制块PCB
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">程把与处理器执行相关的部分都移到了 TaskControlBlock 中
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">组织为一个线程控制块向量中
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">自然对应到多个线程的管理上了
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">而 RecycleAllocator 是对之前的 PidAllocator 的一个升级版
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">一个相对通用的资源分配器，可用于分配进程标识符（PID）和线程的内核栈（KernelStack）。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1pub struct ProcessControlBlock {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2    // immutable
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3    pub pid: PidHandle,
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4    // mutable
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5    inner: UPSafeCell<ProcessControlBlockInner>,
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">6}
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">7
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">8pub struct ProcessControlBlockInner {
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">9    ...
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">10    pub tasks: Vec<Option<Arc<TaskControlBlock>>>,
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">11    pub task_res_allocator: RecycleAllocator,
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">12}
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程与处理器管理结构taskmanager
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">负责管理所有线程
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">处理器管理结构 Processor 负责维护 CPU 状态、调度和特权级切换等事务。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">其数据结构与之前章节中进程的处理器管理结构完全一样。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">但在相关方法上面，由于多个线程有各自的用户栈和跳板页，所以有些不同
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程管理机制的设计与实现
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程创建、线程退出与等待线程结束
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程创建
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">一个进程process执行中发出了创建线程的系统调用 sys_thread_create 后
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">操作系统就需要在当前进程的基础上创建一个线程了
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">重点是需要了解创建线程控制块
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在线程控制块中初始化各个成员变量，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">建立好进程和线程的关系等。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">正确运行所需的重要的执行环境要素
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程的用户态栈
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">确保在用户态的线程能正常执行函数调用；
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程的内核态栈
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">确保线程陷入内核后能正常执行函数调用；
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程的跳板页
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">确保线程能正确的进行用户态<–>内核态切换；
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程上下文
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">即线程用到的寄存器信息，用于线程切换。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_thread_create(entry: usize, arg: usize) -> isize {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">找到当前正在执行的线程 task 和此线程所属的进程 process 。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">调用 TaskControlBlock::new 方法，创建一个新的线程 new_task ，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在创建过程中，建立与进程 process 的所属关系，分配了线程用户态栈、内核态栈、用于异常/中断的跳板页。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">把线程挂到调度队列中。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">把线程接入到所需进程的线程列表 tasks 中。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">初始化位于该线程在用户态地址空间中的 Trap 上下文：
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">设置线程的函数入口点和用户栈， 
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">使得第一次进入用户态时能从线程起始位置开始正确执行；
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">设置好内核栈和陷入函数指针trap_handler ， 
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">保证在 Trap 的时候用户态的线程能正确进入内核态。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程退出
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当一个非主线程的其他线程发出 sys_exit 系统调用时
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">内核会调用 exit_current_and_run_next 函数退出当前线程并切换到下一个线程，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">但不会导致其所属进程的退出。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当 主线程 即进程发出这个系统调用，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">内核会回收整个进程（这包括了其管理的所有线程）资源，并退出
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_exit(exit_code: i32) -> ! {
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn exit_current_and_run_next(exit_code: i32) {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">回收线程的各种资源。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果是主线程发出的退去请求，则回收整个进程的部分资源，并退出进程。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">所做的事情是将当前进程的所有子进程挂在初始进程 INITPROC 下面，
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">做法是遍历每个子进程， 修改其父进程为初始进程，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">并加入初始进程的孩子向量中。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将当前进程的孩子向量清空。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进行线程调度切换。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">很大一部分与第五章讲解的 进程的退出 的功能实现大致相同
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">等待线程结束
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">主线程通过系统调用 sys_waittid 来等待其他线程的结束
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_waittid(tid: usize) -> i32 {
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果是线程等自己，返回错误.
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果找到 tid 对应的退出线程，则收集该退出线程的退出码 exit_tid ，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">否则返回错误（退出线程不存在）。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果退出码存在，则清空进程中对应此退出线程的线程控制块（至此，线程所占资源算是全部清空了），
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">否则返回错误（线程还没退出）。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程执行中的特权级切换和调度切换
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程执行中的特权级切换与第三章中 任务切换的设计与实现 小节中讲解的过程是一致的
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程执行中的调度切换过程与第五章的 进程调度机制 小节中讲解的过程是一致的
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">锁机制
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果多个线程都想读和更新全局数据， 
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">那么谁先更新取决于操作系统内核的抢占式调度和分派策略。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在一般情况下，每个线程都有可能先执行， 且可能由于中断等因素，随时被操作系统打断其执行，而切换到另外一个线程运行， 形成在一段时间内，多个线程交替执行的现象。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果没有一些保障机制（比如互斥、同步等）， 
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">那么这些对共享数据进行读写的交替执行的线程，
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">其期望的共享数据的正确结果可能无法达到。
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">所以，我们需要研究一种保障机制 — 锁 ，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">确保无论操作系统如何抢占线程，调度和切换线程的执行， 
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">都可以保证对拥有锁的线程，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">可以独占地对共享数据进行读写，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">从而能够得到正确的共享数据结果。 
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这种机制的能力来自于处理器的指令、
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">操作系统系统调用的基本支持，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">从而能够保证线程间互斥地读写共享数据。 
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">为什么需要锁
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">简单例子
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">第 4 行代码，一般人理解处理器会一次就执行完这条简单的语句
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">实际情况并不是这样。
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1// 线程的入口函数
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2int a=0;
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3void f() {
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4  a = a + 1;
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5}
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;"> GCC 编译出上述函数的汇编码
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">riscv64-unknown-elf-gcc -o f.s -S f.c
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">看到生成的汇编代码如下：
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">对于高级语言的一条简单语句（C 代码的第 4 行，对全局变量进行读写）
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">很可能是由多条汇编代码 （汇编代码的第 18~23 行）组成
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果这个函数是多个线程要执行的函数，那么在上述汇编代码第 18 行到第 23 行中的各行之间，可能会发生中断，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">从而导致操作系统执行抢占式的线程调度和切换， 就会得到不一样的结果。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">由于执行这段汇编代码（第 18~23 行））的多个线程在访问全局变量过程中可能导致竞争状态，
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">因此我们将此段代码称为临界区（critical section）
+            </td>
+            <td style="font-weight: bold;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">临界区（critical section）
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">临界区是访问共享变量（或共享资源）的代码片段， 不能由多个线程同时执行，即需要保证互斥。
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">...
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">18  lui       a5,%hi(a)
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">19  lw        a5,%lo(a)(a5)
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">20  addiw     a5,a5,1
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">21  sext.w    a4,a5
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">22  lui       a5,%hi(a)
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">23  sw        a4,%lo(a)(a5)
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">...
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">下面是有两个线程T0、T1在一个时间段内的一种可能的执行情况：
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">一般情况下，线程 T0 执行完毕后，再执行线程 T1，那么共享全局变量 a 的值为 2 。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">但在上面的执行过程中， 可以看到在线程执行指令的过程中会发生线程切换，这样在时刻 10 的时候，共享全局变量 a 的值为 1 ， 这不是我们预期的结果。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">出现这种情况的原因是两个线程在操作系统的调度下（在哪个时刻调度具有不确定性）， 交错执行 a = a + 1 的不同汇编指令序列，导致虽然增加全局变量 a 的代码被执行了两次， 但结果还是只增加了 1 。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这种多线程的最终执行结果不确定（indeterminate），
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">取决于由于调度导致的、 不确定指令执行序列的情况
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">就是竞态条件（race condition）。
+            </td>
+            <td style="font-weight: bold;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">就是竞态条件（race condition）。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果每个线程在执行 a = a + 1 这个 C 语句所对应多条汇编语句过程中，不会被操作系统切换， 
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">那么就不会出现多个线程交叉读写全局变量的情况，也就不会出现结果不确定的问题了。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">访问（特指写操作）共享变量代码片段，不能由多个线程同时执行（即并行）或者在一个时间段内都去执行 （即并发）。
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">要做到这一点，需要互斥机制的保障。
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">从某种角度上看，这种互斥性也是一种原子性， 即线程在临界区的执行过程中，不会出现只执行了一部分，就被打断并切换到其他线程执行的情况。
+            </td>
+            <td style="font-weight: bold;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">原子性
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">即， 要么线程执行的这一系列操作/指令都完成，要么这一系列操作/指令都不做，不会出现指令序列执行中被打断的情况。
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;"><img src="data:image/png;base64,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" />
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">锁的基本思路
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">保证多线程并发执行中的临界区的代码具有互斥性或原子性
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">建立一种锁
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">只有拿到锁的线程才能在临界区中执行
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">例如
+            </td>
+            </tr>
+            </table>
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1lock(mutex);    // 尝试取锁
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2a = a + 1;      // 临界区，访问临界资源 a
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3unlock(mutex);  // 是否锁
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4...             // 剩余区
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">对于一个应用程序而言，它的执行是受到其执行环境的管理和限制的
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">执行环境的主要组成就是用户态的系统库、 操作系统和更底层的处理器
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">说明我们需要有硬件和操作系统来对互斥进行支持。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">一个自然的想法是，这个 lock/unlock 互斥操作就是CPU提供的机器指令
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">但需要注意，这里互斥的对象是线程的临界区代码，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">而临界区代码可以访问各种共享变量（简称临界资源）。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">只靠两条机器指令，难以识别各种共享变量，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">不太可能约束可能在临界区的各种指令执行共享变量操作的互斥性。 
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">所以，我们还是需要有一些相对更灵活和复杂一点的方法，能够设置一种所有线程能看到的标记， 
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在一个能进入临界区的线程设置好这个标记后，其他线程都不能再进入临界区了。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">总体上看， 对临界区的访问过程分为四个部分：
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">尝试取锁: 
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">查看锁是否可用，即临界区是否可访问（看占用临界区标志是否被设置），
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果可以访问， 则设置占用临界区标志（锁不可用）并转到步骤 2 ，
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">否则线程忙等或被阻塞;
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">临界区: 
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">访问临界资源的系列操作
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">释放锁: 
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">清除占用临界区标志（锁可用），
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果有线程被阻塞，会唤醒阻塞线程；
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">剩余区: 
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">与临界区不相关部分的代码
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">可以看到锁机制有两种：
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">让线程忙等的忙等锁（spin lock），
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">以及让线程阻塞的睡眠锁 （sleep lock）。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">锁的实现大体上基于三类机制：
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">用户态软件、
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">机器指令硬件、
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">内核态操作系统。 
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">我们还需要知道如何评价各种锁实现的效果。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">一般我们需要关注锁的三种属性：
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">互斥性（mutual exclusion），
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">即锁是否能够有效阻止多个线程进入临界区，这是最基本的属性。
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">公平性（fairness）
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当锁可用时，每个竞争线程是否有公平的机会抢到锁。
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">性能（performance），
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">即使用锁的时间开销。
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">内核态操作系统级方法实现锁 — mutex 系统调用
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">轻量的可睡眠锁
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">让等待锁的线程睡眠，让释放锁的线程显式地唤醒等待锁的线程
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果有多个等待锁的线程，可以全部释放，让大家再次竞争锁
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">也可以只释放最早等待的那个线程。 
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这就需要更多的操作系统支持，特别是需要一个等待队列来保存等待锁的线程。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">多线程应用程序如何使用mutex系统调用的
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">// user/src/bin/race_adder_mutex_blocking.rs
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">创建了一个ID为 0 的互斥锁，对应的是第32行 SYSCALL_MUTEX_CREATE 系统调用；
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">尝试获取锁（对应的是第35行 SYSCALL_MUTEX_LOCK 系统调用），
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果取得锁， 将继续向下执行临界区代码；如果没有取得锁，将阻塞；
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">释放锁（对应的是第38行 SYSCALL_MUTEX_UNLOCK 系统调用），
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果有等待在该锁上的线程， 则唤醒这些等待线程。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">实现
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">数据结构
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1pub struct ProcessControlBlock {
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2    // immutable
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3    pub pid: PidHandle,
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4    // mutable
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5    inner: UPSafeCell<ProcessControlBlockInner>,
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">6}
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">7pub struct ProcessControlBlockInner {
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">8    ...
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: bold;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">9    pub mutex_list: Vec<Option<Arc<dyn Mutex>>>,
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在线程的眼里，互斥是一种每个线程能看到的资源，
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">且在一个进程中，可以存在多个不同互斥资源， 
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">所以我们可以把所有的互斥资源放在一起让进程来管理，
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">实现了 Mutex trait 的一个“互斥资源”的向量
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">10}
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">11pub trait Mutex: Sync + Send {
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">12    fn lock(&self);
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">13    fn unlock(&self);
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">14}
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: bold;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">15pub struct MutexBlocking {
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">会实现 Mutex trait 的内核数据结构
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">就是我们提到的 互斥资源 即 互斥锁
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">16    inner: UPSafeCell<MutexBlockingInner>,
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">17}
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">18pub struct MutexBlockingInner {
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">19    locked: bool,
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: bold;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">20    wait_queue: VecDeque<Arc<TaskControlBlock>>,
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">操作系统需要显式地施加某种控制，来确定当一个线程释放锁时，等待的线程谁将能抢到锁。
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">为了做到这一点，操作系统需要有一个等待队列来保存等待锁的线程
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">21}
+              </td>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">操作系统中，需要设计实现三个核心成员变量
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">互斥锁的成员变量有两个：
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">表示是否锁上的 locked 和管理等待线程的等待队列 wait_queue；
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">进程的成员变量：
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">锁向量 mutex_list 。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">创建一个互斥锁，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_mutex_create(blocking: bool) -> isize {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">Some(Arc::new(MutexBlocking::new()))
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果向量中有空的元素，就在这个空元素的位置创建一个可睡眠的互斥锁；
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">process_inner.mutex_list.push(Some(Arc::new(MutexSpin::new())));
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果向量满了，就在向量中添加新的可睡眠的互斥锁；
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">上锁
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在锁已被其他线程获取的情况下，把当前线程放到等待队列中， 并调度一个新线程执行。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_mutex_lock(mutex_id: usize) -> isize {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">mutex.lock();
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">调用 ID 为 mutex_id 的互斥锁 mutex 的 lock 方法，具体工作由该方法来完成。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">impl Mutex for MutexBlocking {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fn lock(&self) {
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">16        if mutex_inner.locked {
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">17            mutex_inner.wait_queue.push_back(current_task().unwrap());
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果互斥锁 mutex 已经被其他线程获取了，那么在第 17 行，将把当前线程放入等待队列中; 
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">19            block_current_and_run_next();
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在第 19 行，让当前线程处于等待状态，并调度其他线程执行。
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">21            mutex_inner.locked = true;
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果互斥锁 mutex 还没被获取，那么当前线程会获取给互斥锁，并返回系统调用。
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">释放锁
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果有等待在这个互斥锁上的线程，需要唤醒最早等待的线程
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">pub fn sys_mutex_unlock(mutex_id: usize) -> isize {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">8    mutex.unlock();
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">调用 ID 为 mutex_id 的互斥锁 mutex 的 unlock 方法，具体工作由该方法来完成的。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">impl Mutex for MutexBlocking {
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">fn unlock(&self) {
+                <table style="border-width: 2pt; font-size: 6pt;">
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">17        if let Some(waking_task) = mutex_inner.wait_queue.pop_front() {
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">18            add_task(waking_task);
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果有等待的线程，唤醒等待最久的那个线程，相当于将锁的所有权移交给该线程。
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">20            mutex_inner.locked = false;
+                </td>
+                </tr>
+                <tr>
+                <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">若没有线程等待，则释放锁。
+                </td>
+                </tr>
+                </table>
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">信号量机制
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当我们需要更灵活的互斥访问或同步操作方式，如提供了最多只允许 N 个线程访问临界资源的情况
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">让某个线程等待另外一个线程执行完毕后再继续执行的同步过程等， 互斥锁这种方式就有点力不从心了
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">信号量的实现需要互斥锁和处理器原子指令的支持， 它是一种更高级的同步互斥机制。
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">信号量的起源和基本思路
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">Edsger Dijkstra
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">信号量 （Semphore）是一种变量或抽象数据类型，用于控制多个线程对共同资源的访问。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">信号量是对互斥锁的一种巧妙的扩展
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">互斥锁的初始值一般设置为 1 的整型变量， 表示临界区还没有被某个线程占用
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">互斥锁用 0 表示临界区已经被占用了，再通过 lock/unlock 操作来协调多个线程轮流独占临界区执行。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">而信号量的初始值可设置为 N 的整数变量, 
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果 N 大于 0， 表示最多可以有 N 个线程进入临界区执行，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果 N 小于等于 0 ，表示不能有线程进入临界区了， 
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">必须在后续操作中让信号量的值加 1 ，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">才能唤醒某个等待的线程。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">Dijkstra 对信号量设计了两种操作：
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">P（Proberen（荷兰语），尝试）操作和
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">检查信号量的值是否大于 0，若该值大于 0，则将其值减 1 并继续（表示可以进入临界区了）；
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">若该值为 0，则线程将睡眠。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">注意，此时 P 操作还未结束。
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">而且由于信号量本身是一种临界资源（可回想一下上一节的锁， 其实也是一种临界资源），
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">所以在 P 操作中，检查/修改信号量值以及可能发生的睡眠这一系列操作， 
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">是一个不可分割的原子操作过程。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">通过原子操作才能保证，一旦 P 操作开始，则在该操作完成或阻塞睡眠之前， 其他线程均不允许访问该信号量。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;"> V（Verhogen（荷兰语），增加）操作。
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">V 操作会对信号量的值加 1 ，然后检查是否有一个或多个线程在该信号量上睡眠等待。
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如有， 则选择其中的一个线程唤醒并允许该线程继续完成它的 P 操作；
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如没有，则直接返回。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">注意，信号量的值加 1， 并可能唤醒一个线程的一系列操作同样也是不可分割的原子操作过程。
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">不会有某个进程因执行 V 操作而阻塞。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果信号量是一个任意的整数，通常被称为计数信号量（Counting Semaphore），或一般信号量（General Semaphore）；
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果信号量只有0或1的取值，则称为二值信号量（Binary Semaphore）。
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">互斥锁是信号量的一种特例 — 二值信号量，
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">信号量很好地解决了最多允许 N 个线程访问临界资源的情况。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">伪代码
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1fn P(S) {
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2    if S >= 1
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">S 的取值范围为大于等于 0 的整数。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">S 的初值一般设置为一个大于 0 的正整数， 表示可以进入临界区的线程数。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当 S 取值为 1，表示是二值信号量，也就是互斥锁了。 
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3        S = S - 1;
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4    else
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5        <block and enqueue the thread>;
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">6}
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">7fn V(S) {
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">8    if <some threads are blocked on the queue>
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">9        <unblock a thread>;
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">10    else
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">11        S = S + 1;
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">12}
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">使用信号量
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1let static mut S: semaphore = 1;
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3// Thread i
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4fn  foo() {
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5    ...
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">6    P(S);
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">7    execute Cricital Section;
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">8    V(S);
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">9    ...
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">10}
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">另外一种信号量实现的伪代码：
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1fn P(S) {
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2    S = S - 1;
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">S 的初值一般设置为一个大于 0 的正整数，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">表示可以进入临界区的线程数。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">但 S 的取值范围可以是小于 0 的整数
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">表示等待进入临界区的睡眠线程数。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3    if S < 0 then
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4        <block and enqueue the thread>;
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5}
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">6
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">7fn V(S) {
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">8    S = S + 1;
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">9    if <some threads are blocked on the queue>
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">10        <unblock a thread>;
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">11}
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">另一种用途是用于实现同步（synchronization）。
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">比如，把信号量的初始值设置为 0 ， 
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当一个线程 A 对此信号量执行一个 P 操作，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">那么该线程立即会被阻塞睡眠。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">之后有另外一个线程 B 对此信号量执行一个 V 操作，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">就会将线程 A 唤醒。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这样线程 B 中执行 V 操作之前的代码序列 B-stmts 和线程 A 中执行 P 操作之后的代码 A-stmts 序列之间就形成了一种确定的同步执行关系，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">即线程 B 的 B-stmts 会先执行，然后才是线程 A 的 A-stmts 开始执行。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">伪代码
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1let static mut S: semaphore = 0;
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3//Thread A
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4...
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5P(S);
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">6Label_2:
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">7A-stmts after Thread B::Label_1;
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">8...
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">9
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">10//Thread B
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">11...
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">12B-stmts before Thread A::Label_2;
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">13Label_1:
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">14V(S);
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">15...
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">实现信号量
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">使用 semaphore 系统调用
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">主线程先创建了信号量初值为 0 的信号量 SEM_SYNC
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">然后再创建两个线程 First 和 Second 
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程 First 会先睡眠 10ms，而当线程 Second 执行时，会由于执行信号量的 P 操作而等待睡眠；
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当线程 First 醒来后，会执行 V 操作，从而能够唤醒线程 Second。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这样线程 First 和线程 Second 就形成了一种稳定的同步关系。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1const SEM_SYNC: usize = 0; //信号量ID
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2unsafe fn first() -> ! {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3    sleep(10);
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4    println!("First work and wakeup Second");
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5    semaphore_up(SEM_SYNC); //信号量V操作
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">第 5 行，线程 First 执行信号量 V 操作
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">（对应第 25 行 SYSCALL_SEMAPHORE_UP 系统调用）， 会唤醒等待该信号量的线程 Second。
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">6    exit(0)
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">7}
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">8unsafe fn second() -> ! {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">9    println!("Second want to continue,but need to wait first");
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">10    semaphore_down(SEM_SYNC); //信号量P操作
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程 Second 执行信号量 P 操作
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">（对应第 28行 SYSCALL_SEMAPHORE_DOWN 系统调用），由于信号量初值为 0 ，该线程将阻塞；
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">11    println!("Second can work now");
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">12    exit(0)
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">13}
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">14pub fn main() -> i32 {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">15    // create semaphores
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">16    assert_eq!(semaphore_create(0) as usize, SEM_SYNC); // 信号量初值为0
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">创建了一个初值为 0 ，ID 为 SEM_SYNC 的信号量，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">对应的是第 22 行 SYSCALL_SEMAPHORE_CREATE 系统调用；
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">17    // create first, second threads
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">18    ...
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">19}
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">20
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">21pub fn sys_semaphore_create(res_count: usize) -> isize {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">22    syscall(SYSCALL_SEMAPHORE_CREATE, [res_count, 0, 0])
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">23}
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">24pub fn sys_semaphore_up(sem_id: usize) -> isize {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">25    syscall(SYSCALL_SEMAPHORE_UP, [sem_id, 0, 0])
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">26}
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">27pub fn sys_semaphore_down(sem_id: usize) -> isize {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">28    syscall(SYSCALL_SEMAPHORE_DOWN, [sem_id, 0, 0])
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">29}
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">实现 semaphore 系统调用
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1pub struct ProcessControlBlock {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2    // immutable
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3    pub pid: PidHandle,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4    // mutable
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5    inner: UPSafeCell<ProcessControlBlockInner>,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">6}
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">7pub struct ProcessControlBlockInner {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">8    ...
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">9    pub semaphore_list: Vec<Option<Arc<Semaphore>>>,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+              <table style="border-width: 2pt; font-size: 7pt;">
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在线程的眼里，信号量是一种每个线程能看到的共享资源，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">且在一个进程中，可以存在多个不同信号量资源， 
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">所以我们可以把所有的信号量资源放在一起让进程来管理，
+              </td>
+              </tr>
+              <tr>
+              <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">semaphore_list: Vec<Option<Arc<Semaphore>>> 表示的是信号量资源的列表
+              </td>
+              </tr>
+              </table>
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">10}
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">11
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">12pub struct Semaphore {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">Semaphore 是信号量的内核数据结构，由信号量值和等待队列组成。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">13    pub inner: UPSafeCell<SemaphoreInner>,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">14}
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">15pub struct SemaphoreInner {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">16    pub count: isize,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">信号量的核心数据成员：信号量值和等待队列。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">17    pub wait_queue: VecDeque<Arc<TaskControlBlock>>,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">18}
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">19impl Semaphore {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">20    pub fn new(res_count: usize) -> Self {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">创建信号量，信号量初值为参数 res_count 。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">21        Self {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">22            inner: unsafe { UPSafeCell::new(
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">23                SemaphoreInner {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">24                    count: res_count as isize,
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">25                    wait_queue: VecDeque::new(),
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">26                }
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">27            )},
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">28        }
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">29    }
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">30
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">31    pub fn up(&self) {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">V 操作是由 Semaphore 的 up 方法实现
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">32        let mut inner = self.inner.exclusive_access();
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">33        inner.count += 1;
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">34        if inner.count <= 0 {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当信号量值小于等于 0 时， 将从信号量的等待队列中弹出一个线程放入线程就绪队列。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">35            if let Some(task) = inner.wait_queue.pop_front() {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">36                add_task(task);
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">37            }
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">38        }
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">39    }
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">40
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">41    pub fn down(&self) {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">P 操作是由 Semaphore 的 down 方法实现
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">42        let mut inner = self.inner.exclusive_access();
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">43        inner.count -= 1;
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">44        if inner.count < 0 {
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当信号量值小于 0 时， 将把当前线程放入信号量的等待队列，设置当前线程为挂起状态并选择新线程执行。
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">45            inner.wait_queue.push_back(current_task().unwrap());
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">46            drop(inner);
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">47            block_current_and_run_next();
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">48        }
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">49    }
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">50}
+            </td>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">条件变量机制
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">为了简化编程、避免错误， 计算机科学家针对某些情况设计了一种更高层的同步互斥原语。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">具体而言，在有些情况下， 线程需要检查某一条件（condition）满足之后，才会继续执行。
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">来看一个例子，
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">有两个线程 first 和 second 在运行，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程 first 会把全局变量 A 设置为 1，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">而线程 second 在 A != 0 的条件满足后，才能继续执行，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果线程 second 先执行，会忙等在 while 循环中，在操作系统的调度下，线程 first 会执行并把 A 赋值为 1 后，然后线程 second 再次执行时，就会跳出 while 循环，进行接下来的工作。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;"> 配合互斥锁，可以正确完成上述带条件的同步流程，如下面的伪代码所示：
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">实现能执行，但效率低下，因为线程 second 会忙等检查，浪费处理器时间。
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1static mut A: usize = 0;
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2unsafe fn first() -> ! {
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3    mutex.lock();
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4    A=1;
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5    mutex.unlock();
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">6    ...
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">7}
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">8
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">9unsafe fn second() -> ! {
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">10    mutex.lock();
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">11    while A==0 {
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">12        mutex.unlock();
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">13        // give other thread a chance to lock
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">14        mutex.lock();
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">15    };
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">16    mutex.unlock();
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">17    //继续执行相关事务
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">18}
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">我们希望有某种方式让线程 second 休眠，直到等待的条件满足，再继续执行。于是，我们可以写出如下的代码：
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">确实，线程 second 是带着上锁的 mutex 进入等待睡眠状态的。 
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果这两个线程的调度顺序是先执行线程 second，再执行线程first，那么线程 second 会先睡眠且拥有 mutex 的锁；
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当线程 first 执行时，会由于没有 mutex 的锁而进入等待锁的睡眠状态。 
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">结果就是两个线程都睡了，都执行不下去，这就出现了 死锁 。
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1static mut A: usize = 0;
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2unsafe fn first() -> ! {
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3    mutex.lock();
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4    A=1;
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5    wakup(second);
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">6    mutex.unlock();
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">7    ...
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">8}
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">9
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">10unsafe fn second() -> ! {
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">11    mutex.lock();
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">12    while A==0 {
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">13       wait();
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">14    };
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">15    mutex.unlock();
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">16    //继续执行相关事务
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">17}
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这里需要解决的两个关键问题
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如何等待一个条件？ 
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在条件为真时如何向等待线程发出信号 。 
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          </table>
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">我们的计算机科学家给出了 管程（Monitor） 和 条件变量（Condition Variables） 这种巧妙的方法。
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">条件变量的基本思路
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">管程Monitor有一个很重要的特性，
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">即任一时刻只能有一个活跃线程调用管程中的过程， 
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这一特性使线程在调用执行管程中过程时能保证互斥，
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这样线程就可以放心地访问共享变量。
+        </td>
+        </tr>
+        </table>
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">管程是编程语言的组成部分，
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">编译器知道其特殊性，
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">因此可以采用与其他过程调用不同的方法来处理对管程的调用. 
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">因为是由编译器而非程序员来生成互斥相关的代码，所以出错的可能性要小。
+        </td>
+        </tr>
+        </table>
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">管程虽然借助编译器提供了一种实现互斥的简便途径，但这还不够，还需要一种线程间的沟通机制。 
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">首先是等待机制：
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">由于线程在调用管程中某个过程时，发现某个条件不满足，那就在无法继续运行而被阻塞。 
+        </td>
+        </tr>
+        </table>
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">其次是唤醒机制：
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">另外一个线程可以在调用管程的过程中，把某个条件设置为真，
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">并且还需要有一种机制， 及时唤醒等待条件为真的阻塞线程。
+        </td>
+        </tr>
+        </table>
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">为了避免管程中同时有两个活跃线程， 
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">我们需要一定的规则来约定线程发出唤醒操作的行为。
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">目前有三种典型的规则方案：
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">Hoare 语义：
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程发出唤醒操作后，马上阻塞自己，让新被唤醒的线程运行。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">注：此时唤醒线程的执行位置还在管程中。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">Hansen 语义：
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">执行唤醒操作的线程必须立即退出管程，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">即唤醒操作只可能作为一个管程过程的最后一条语句。 
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">注：此时唤醒线程的执行位置离开了管程。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">Mesa 语义：
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">唤醒线程在发出唤醒操作后继续运行，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">并且只有它退出管程之后，才允许等待的线程开始运行。 
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">注：此时唤醒线程的执行位置还在管程中。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">下面介绍一个基于 Mesa 语义的沟通机制。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这种沟通机制的具体实现就是 条件变量 和对应的操作：
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">wait 和 signal。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程使用条件变量来等待一个条件变成真。 
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">条件变量其实是一个线程等待队列，
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当条件不满足时，线程通过执行条件变量的 wait 操作就可以把自己加入到等待队列中，睡眠等待（waiting）该条件。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">另外某个线程，当它改变条件为真后， 
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">就可以通过条件变量的 signal 操作来唤醒一个或者多个等待的线程（通过在该条件上发信号），让它们继续执行。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">早期提出的管程是基于 Concurrent Pascal 来设计的
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">其他语言如 C 和 Rust 等，并没有在语言上支持这种机制。 
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">我们还是可以用手动加入互斥锁的方式来代替编译器，就可以在 C 和 Rust 的基础上实现原始的管程机制了。 
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在目前的 C 语言应用开发中，实际上也是这么做的。
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">这样，我们就可以用互斥锁和条件变量， 来重现上述的同步互斥例子：
+        </td>
+        </tr>
+        </table>
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1static mut A: usize = 0;
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2unsafe fn first() -> ! {
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3    mutex.lock();
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4    A=1;
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5    condvar.wakup();
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">6    mutex.unlock();
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">7    ...
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">8}
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">9
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">10unsafe fn second() -> ! {
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">11    mutex.lock();
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">12    while A==0 {
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">13       condvar.wait(mutex); //在睡眠等待之前，需要释放mutex
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">14    };
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">15    mutex.unlock();
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">16    //继续执行相关事务
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">17}
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">实现
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">wait三步
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1. 释放锁；
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2. 把自己挂起；
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3. 被唤醒后，再获取锁。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">条件变量的 signal 操作只包含一步：
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">找到挂在条件变量上睡眠的线程，把它唤醒。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1fn wait(mutex) {
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2    mutex.unlock();
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3    <block and enqueue the thread>;
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4    mutex.lock();
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5}
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">6
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">7fn signal() {
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">8    <unblock a thread>;
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">9}
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">注意，。
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">条件变量不像信号量那样有一个整型计数值的成员变量，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">所以条件变量也不能像信号量那样有读写计数值的能力。 
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">如果一个线程向一个条件变量发送唤醒操作，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">但是在该条件变量上并没有等待的线程，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">则唤醒操作实际上什么也没做
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    <tr>
+    <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">实现条件变量
+      <table style="border-width: 2pt; font-size: 11pt;">
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">使用 condvar 系统调用
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">面向应用程序对条件变量系统调用的简单使用
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">它的使用与上一节介绍的信号量系统调用类似
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">主线程先创建了初值为 1 的互斥锁和一个条件变量，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">然后再创建两个线程 First 和 Second
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程 First 会先睡眠 10ms，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">而当线程 Second 执行时，会由于条件不满足执行条件变量的 wait 操作而等待睡眠；
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">当线程 First 醒来后，通过设置 A 为 1，让线程 second 等待的条件满足，然后会执行条件变量的 signal 操作，从而能够唤醒线程 Second。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;"> 这样线程 First 和线程 Second 就形成了一种稳定的同步与互斥关系。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1static mut A: usize = 0;   //全局变量
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3const CONDVAR_ID: usize = 0;
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4const MUTEX_ID: usize = 0;
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">6unsafe fn first() -> ! {
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">7    sleep(10);
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">8    println!("First work, Change A --> 1 and wakeup Second");
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">9    mutex_lock(MUTEX_ID);
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">10    A=1;
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">11    condvar_signal(CONDVAR_ID);
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程 First 执行条件变量 signal 操作
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">（对应第 36 行 SYSCALL_CONDVAR_SIGNAL 系统调用）， 
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">会唤醒等待该条件变量的线程 Second。
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">12    mutex_unlock(MUTEX_ID);
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">13    ...
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">14}
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">15unsafe fn second() -> ! {
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">16    println!("Second want to continue,but need to wait A=1");
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">17    mutex_lock(MUTEX_ID);
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">18    while A==0 {
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">19        condvar_wait(CONDVAR_ID, MUTEX_ID);
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">线程 Second 执行条件变量 wait 操作
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">（对应第 39 行 SYSCALL_CONDVAR_WAIT 系统调用）
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">该线程将释放 mutex 锁并阻塞；
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">20    }
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">21    mutex_unlock(MUTEX_ID);
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">22    ...
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">23}
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">24pub fn main() -> i32 {
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">25    // create condvar & mutex
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">26    assert_eq!(condvar_create() as usize, CONDVAR_ID);
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+            <table style="border-width: 2pt; font-size: 8pt;">
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">创建了一个 ID 为 CONDVAR_ID 的条件量，
+            </td>
+            </tr>
+            <tr>
+            <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">对应第 33 行 SYSCALL_CONDVAR_CREATE 系统调用；
+            </td>
+            </tr>
+            </table>
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">27    assert_eq!(mutex_blocking_create() as usize, MUTEX_ID);
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">28    // create first, second threads
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">29    ...
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">30}
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">31
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">32pub fn condvar_create() -> isize {
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">33    sys_condvar_create(0)
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">34}
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">35pub fn condvar_signal(condvar_id: usize) {
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">36    sys_condvar_signal(condvar_id);
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">37}
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">38pub fn condvar_wait(condvar_id: usize, mutex_id: usize) {
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">39    sys_condvar_wait(condvar_id, mutex_id);
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">40}
+          </td>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">实现 condvar 系统调用
+      </td>
+      <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        <table style="border-width: 2pt; font-size: 10pt;">
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">1pub struct ProcessControlBlock {
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">2    // immutable
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">3    pub pid: PidHandle,
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">4    // mutable
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">5    inner: UPSafeCell<ProcessControlBlockInner>,
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">6}
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">7pub struct ProcessControlBlockInner {
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">8    ...
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">9    pub condvar_list: Vec<Option<Arc<Condvar>>>,
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在线程的眼里，条件变量是一种每个线程能看到的共享资源， 
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">且在一个进程中，可以存在多个不同条件变量资源，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">所以我们可以把所有的条件变量资源放在一起让进程来管理
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">condvar_list: Vec<Option<Arc<Condvar>>> 表示的是条件变量资源的列表
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">10}
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">11pub struct Condvar {
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">而 Condvar 是条件变量的内核数据结构，由等待队列组成
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">12    pub inner: UPSafeCell<CondvarInner>,
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">13}
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">14pub struct CondvarInner {
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">15    pub wait_queue: VecDeque<Arc<TaskControlBlock>>,
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">16}
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">17impl Condvar {
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">18    pub fn new() -> Self {
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">创建条件变量，即创建了一个空的等待队列。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">19        Self {
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">20            inner: unsafe { UPSafeCell::new(
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">21                CondvarInner {
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">22                    wait_queue: VecDeque::new(),
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">23                }
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">24            )},
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">25        }
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">26    }
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">27    pub fn signal(&self) {
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">实现 signal 操作，将从条件变量的等待队列中弹出一个线程放入线程就绪队列。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">28        let mut inner = self.inner.exclusive_access();
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">29        if let Some(task) = inner.wait_queue.pop_front() {
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">30            wakeup_task(task);
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">31        }
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">32    }
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">33    pub fn wait(&self, mutex:Arc<dyn Mutex>) {
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+          <table style="border-width: 2pt; font-size: 9pt;">
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">实现 wait 操作，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">释放 mutex 互斥锁，
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">将把当前线程放入条件变量的等待队列， 
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">设置当前线程为挂起状态并选择新线程执行。
+          </td>
+          </tr>
+          <tr>
+          <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">在恢复执行后，再加上 mutex 互斥锁。
+          </td>
+          </tr>
+          </table>
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">34        mutex.unlock();
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">35        let mut inner = self.inner.exclusive_access();
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">36        inner.wait_queue.push_back(current_task().unwrap());
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">37        drop(inner);
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">38        block_current_and_run_next();
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">39        mutex.lock();
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">40    }
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        <tr>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">41}
+        </td>
+        <td style="font-weight: normal;font-style: normal;font-family: sans-serif;background-color: #FFFFFF;color: #000000;">
+        </td>
+        </tr>
+        </table>
+      </td>
+      </tr>
+      </table>
+    </td>
+    </tr>
+    </table>
+  </td>
+  </tr>
+  </table>
+</td>
+</tr>
+</table>
+
+</body>
+</html>
