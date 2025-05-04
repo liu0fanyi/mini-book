@@ -4,8 +4,30 @@
     <title>mdbook-template</title>
     <link>https://github.com/kg4zow/mdbook-template</link>
     <description>Template for mdbook books</description>
-    <pubDate>Tue, 29 Apr 2025 20:41:45 +0800</pubDate>
-    <lastBuildDate>Tue, 29 Apr 2025 13:51:50 +0000</lastBuildDate>
+    <pubDate>Thu, 1 May 2025 20:54:42 +0800</pubDate>
+    <lastBuildDate>Sun, 04 May 2025 14:46:31 +0000</lastBuildDate>
+    <item>
+      <guid>d8eb0d7561006052f4ba86d04ee9949904a9999a</guid>
+      <pubDate>Thu, 1 May 2025 20:54:42 +0800</pubDate>
+      <link>https://github.com/kg4zow/mdbook-template/commit/d8eb0d7561006052f4ba86d04ee9949904a9999a</link>
+      <title>new try</title>
+      <author>liu_fanyi</author>
+      <description>
+        <pre>Commit: d8eb0d7561006052f4ba86d04ee9949904a9999a
+Author: liu_fanyi &amp;lt;liu_fanyi&amp;gt;
+Date: Thu, 1 May 2025 20:54:42 +0800
+
+new try
+
+A	.envrc
+A	.gitattributes
+M	.gitignore
+A	flake.lock
+A	flake.nix
+A	rust-toolchain.toml
+M	src/introduction.md</pre>
+      </description>
+    </item>
     <item>
       <guid>bd483c7049729bb7fd7ad60b426073a223e2b3f8</guid>
       <pubDate>Tue, 29 Apr 2025 20:41:45 +0800</pubDate>
