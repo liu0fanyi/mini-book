@@ -4,8 +4,34 @@
     <title>mdbook-template</title>
     <link>https://github.com/kg4zow/mdbook-template</link>
     <description>Template for mdbook books</description>
-    <pubDate>Thu, 1 May 2025 20:54:42 +0800</pubDate>
-    <lastBuildDate>Sun, 04 May 2025 14:47:38 +0000</lastBuildDate>
+    <pubDate>Sun, 4 May 2025 22:47:56 +0800</pubDate>
+    <lastBuildDate>Mon, 05 May 2025 04:17:44 +0000</lastBuildDate>
+    <item>
+      <guid>25bcfca26d6ec07e17aafada07114138b8aae05f</guid>
+      <pubDate>Sun, 4 May 2025 22:47:56 +0800</pubDate>
+      <link>https://github.com/kg4zow/mdbook-template/commit/25bcfca26d6ec07e17aafada07114138b8aae05f</link>
+      <title>update rcore content</title>
+      <author>liu_fanyi</author>
+      <description>
+        <pre>Commit: 25bcfca26d6ec07e17aafada07114138b8aae05f
+Author: liu_fanyi &amp;lt;liu_fanyi&amp;gt;
+Date: Sun, 4 May 2025 22:47:56 +0800
+
+update rcore content
+
+M	src/SUMMARY.md
+D	src/chapter_1.md
+M	src/introduction.md
+A	src/rcore/clipboard_1.md
+A	src/rcore/clipboard_2.md
+A	src/rcore/clipboard_3.md
+A	src/rcore/clipboard_4.md
+A	src/rcore/clipboard_5.md
+A	src/rcore/clipboard_6.md
+A	src/rcore/clipboard_7.md
+A	src/rcore/clipboard_8.md</pre>
+      </description>
+    </item>
     <item>
       <guid>d8eb0d7561006052f4ba86d04ee9949904a9999a</guid>
       <pubDate>Thu, 1 May 2025 20:54:42 +0800</pubDate>

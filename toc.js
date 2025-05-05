@@ -16,18 +16,18 @@ class MDBookSidebarScrollbox extends HTMLElement {
 -->
 <!-- End extra link above the ToC -->
 
-<ol class="chapter"><li class="chapter-item expanded affix "><a href="introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="spacer"></li><li class="chapter-item expanded "><div>rcore</div></li><li><ol class="section"><li class="chapter-item expanded "><a href="rcore/clipboard_1.html">ch1</a></li><li class="chapter-item expanded "><a href="rcore/clipboard_2.html">ch2</a></li><li class="chapter-item expanded "><a href="rcore/clipboard_3.html">ch3</a></li><li class="chapter-item expanded "><a href="rcore/clipboard_4.html">ch4</a></li><li class="chapter-item expanded "><a href="rcore/clipboard_5.html">ch5</a></li><li class="chapter-item expanded "><a href="rcore/clipboard_6.html">ch6</a></li><li class="chapter-item expanded "><a href="rcore/clipboard_7.html">ch7</a></li><li class="chapter-item expanded "><a href="rcore/clipboard_8.html">ch8</a></li></ol></li></ol>
+<ol class="chapter"><li class="chapter-item expanded affix "><a href="introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="spacer"></li><li class="chapter-item expanded "><div>rcore</div></li><li><ol class="section"><li class="chapter-item expanded "><a href="rcore/clipboard_1.html">rust-os基础设施</a></li><li class="chapter-item expanded "><a href="rcore/clipboard_2.html">batch批处理</a></li><li class="chapter-item expanded "><a href="rcore/clipboard_3.html">分时多任务</a></li><li class="chapter-item expanded "><a href="rcore/clipboard_4.html">地址空间</a></li><li class="chapter-item expanded "><a href="rcore/clipboard_5.html">进程管理</a></li><li class="chapter-item expanded "><a href="rcore/clipboard_6.html">文件系统</a></li><li class="chapter-item expanded "><a href="rcore/clipboard_7.html">进程间通信</a></li><li class="chapter-item expanded "><a href="rcore/clipboard_8.html">并发</a></li></ol></li><li class="chapter-item expanded "><div>arceos</div></li><li><ol class="section"><li class="chapter-item expanded "><a href="arceos/clipboard_1.html">unikernel</a></li><li class="chapter-item expanded "><a href="arceos/clipboard_2.html">内存管理</a></li><li class="chapter-item expanded "><a href="arceos/clipboard_3.html">多任务</a></li><li class="chapter-item expanded "><a href="arceos/clipboard_4.html">驱动</a></li><li class="chapter-item expanded "><a href="arceos/clipboard_5.html">宏内核</a></li><li class="chapter-item expanded "><a href="arceos/clipboard_6.html">Hypervisor</a></li></ol></li></ol>
 
 <!-- Start version-commit content below ToC (js) -->
                 <hr/>
                 <div class="part-title">Version</div>
                 <div id="commit" class="version-commit-div">
-                    <span class="version-commit-hash"><tt>d8eb0d7-dirty</tt></span><br/>
-                    <span class="version-commit-time"><tt>2025-05-01 12:54:42 +0000</tt></span>
+                    <span class="version-commit-hash"><tt>25bcfca-dirty</tt></span><br/>
+                    <span class="version-commit-time"><tt>2025-05-04 14:47:56 +0000</tt></span>
                 </div>
                 <div class="part-title">Generated</div>
                 <div id="generated" class="version-commit-div">
-                    <span class="version-commit-now"><tt>2025-05-04 14:47:37 +0000</tt></span>
+                    <span class="version-commit-now"><tt>2025-05-05 04:17:35 +0000</tt></span>
                 </div>
 <!-- End version-commit content below ToC -->
 
